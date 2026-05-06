@@ -16,3 +16,8 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Initialized Git repository
 - [x] Created basic folder structure (frontend, backend)
 - [x] Created initial README.md
+
+### Day 2
+- [x] Initialized Node.js project in backend
+- [x] Installed backend dependencies (Express, Mongoose, dotenv, cors, nodemon)
+- [x] Set up basic Express server using ES modules and connected to MongoDB
