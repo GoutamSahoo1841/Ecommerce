@@ -27,3 +27,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Created User Mongoose model with password hashing methods
 - [x] Implemented authentication and registration routes/controllers
 - [x] Added custom error handling middleware
+
+### Day 4
+- [x] Created auth middleware to protect routes (JWT verification)
+- [x] Added admin middleware for role-based access control
+- [x] Implemented get and update user profile controllers
+- [x] Secured API routes with protect and admin middlewares
