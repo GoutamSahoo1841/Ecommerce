@@ -21,3 +21,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Initialized Node.js project in backend
 - [x] Installed backend dependencies (Express, Mongoose, dotenv, cors, nodemon)
 - [x] Set up basic Express server using ES modules and connected to MongoDB
+
+### Day 3
+- [x] Installed authentication dependencies (bcryptjs, jsonwebtoken, express-async-handler)
+- [x] Created User Mongoose model with password hashing methods
+- [x] Implemented authentication and registration routes/controllers
+- [x] Added custom error handling middleware
