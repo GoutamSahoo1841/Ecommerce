@@ -33,3 +33,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Added admin middleware for role-based access control
 - [x] Implemented get and update user profile controllers
 - [x] Secured API routes with protect and admin middlewares
+
+### Day 5
+- [x] Implemented delete user controller for admin access
+- [x] Implemented get user by ID controller for admin access
+- [x] Implemented update user controller (admin functionality)
+- [x] Secured and integrated all admin user routes (`DELETE /api/users/:id`, `GET /api/users/:id`, `PUT /api/users/:id`)
