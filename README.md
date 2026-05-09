@@ -39,3 +39,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Implemented get user by ID controller for admin access
 - [x] Implemented update user controller (admin functionality)
 - [x] Secured and integrated all admin user routes (`DELETE /api/users/:id`, `GET /api/users/:id`, `PUT /api/users/:id`)
+
+### Day 6
+- [x] Created `Product` Mongoose model with review schema
+- [x] Created `Order` Mongoose model with nested schemas (order items, shipping address)
+- [x] Created mock data for users and products
+- [x] Implemented database seeder script (`seeder.js`) to import and destroy data
