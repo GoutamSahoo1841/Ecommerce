@@ -45,3 +45,8 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Created `Order` Mongoose model with nested schemas (order items, shipping address)
 - [x] Created mock data for users and products
 - [x] Implemented database seeder script (`seeder.js`) to import and destroy data
+
+### Day 7
+- [x] Implemented `productController.js` to fetch products from the database
+- [x] Created `productRoutes.js` for `GET /api/products` and `GET /api/products/:id` endpoints
+- [x] Integrated product routes into Express application
