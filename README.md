@@ -50,3 +50,8 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Implemented `productController.js` to fetch products from the database
 - [x] Created `productRoutes.js` for `GET /api/products` and `GET /api/products/:id` endpoints
 - [x] Integrated product routes into Express application
+
+### Day 8
+- [x] Implemented `createProduct`, `updateProduct`, and `deleteProduct` in `productController.js`
+- [x] Secured product mutation routes using `protect` and `admin` middleware
+- [x] Wired up `POST /api/products`, `PUT /api/products/:id`, and `DELETE /api/products/:id` endpoints
