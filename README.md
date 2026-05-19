@@ -97,3 +97,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Replaced mock data with real data fetching in `HomeScreen.jsx` using `useEffect` and `useState`
 - [x] Added premium loading spinners and error states to `HomeScreen.jsx`
 - [x] Implemented single product data fetching in `ProductScreen.jsx` with loading/error states
+
+### Day 16
+- [x] Installed `@reduxjs/toolkit` and `react-redux` for global state management
+- [x] Configured the global Redux store (`store.js`) and provided it in `main.jsx`
+- [x] Built the base RTK Query API slice (`apiSlice.js`)
+- [x] Created `productsApiSlice.js` to manage `/api/products` data fetching and caching
+- [x] Refactored `HomeScreen.jsx` and `ProductScreen.jsx` to use auto-generated RTK Query hooks instead of standard `useEffect`/`axios` calls
