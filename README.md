@@ -111,3 +111,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Added dynamic quantity selector and "Add To Cart" functionality to `ProductScreen.jsx`
 - [x] Built a premium `CartScreen.jsx` UI to view, edit, and remove cart items
 - [x] Wired up the `Header.jsx` navigation bar to dynamically display a cart badge tied to the Redux store
+
+### Day 18
+- [x] Created `authSlice.js` to manage user credentials in Redux and `localStorage`
+- [x] Created `usersApiSlice.js` to connect the frontend to the backend `/api/users` routes via RTK Query
+- [x] Built a reusable `FormContainer.jsx` wrapper for authentication and checkout flows
+- [x] Implemented a premium `LoginScreen.jsx` UI with loading states and error handling
+- [x] Refactored `Header.jsx` to dynamically render user information and a logout dropdown menu
