@@ -84,3 +84,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Setup React Router (`react-router-dom`) for frontend navigation
 - [x] Built the core `App.jsx` layout with premium glassmorphism Header and Footer components
 - [x] Implemented a visually stunning `HomeScreen` to display mock product cards
+
+### Day 14
+- [x] Extracted mock data to `products.js` to share across components
+- [x] Created `ProductScreen.jsx` with a premium, responsive layout for individual product details
+- [x] Implemented dynamic routing (`/product/:id`) in `main.jsx`
+- [x] Wired up product cards on the `HomeScreen` to navigate to the `ProductScreen`
