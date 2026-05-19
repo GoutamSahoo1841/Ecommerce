@@ -104,3 +104,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Built the base RTK Query API slice (`apiSlice.js`)
 - [x] Created `productsApiSlice.js` to manage `/api/products` data fetching and caching
 - [x] Refactored `HomeScreen.jsx` and `ProductScreen.jsx` to use auto-generated RTK Query hooks instead of standard `useEffect`/`axios` calls
+
+### Day 17
+- [x] Created `cartSlice.js` to manage standard Redux cart state (addToCart, removeFromCart)
+- [x] Built `cartUtils.js` to calculate item, shipping, and tax prices, and to persist the cart to `localStorage`
+- [x] Added dynamic quantity selector and "Add To Cart" functionality to `ProductScreen.jsx`
+- [x] Built a premium `CartScreen.jsx` UI to view, edit, and remove cart items
+- [x] Wired up the `Header.jsx` navigation bar to dynamically display a cart badge tied to the Redux store

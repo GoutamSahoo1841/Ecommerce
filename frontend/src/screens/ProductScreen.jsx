@@ -1,10 +1,22 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useGetProductDetailsQuery } from '../slices/productsApiSlice';
+import { addToCart } from '../slices/cartSlice';
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [qty, setQty] = useState(1);
+
   const { data: product, isLoading, error } = useGetProductDetailsQuery(productId);
+
+  const addToCartHandler = () => {
+    dispatch(addToCart({ ...product, qty }));
+    navigate('/cart');
+  };
 
   if (isLoading) {
     return (
@@ -78,10 +90,28 @@ const ProductScreen = () => {
                 {product.countInStock > 0 ? 'In Stock' : 'Out Of Stock'}
               </span>
             </div>
+
+            {product.countInStock > 0 && (
+              <div className="flex justify-between items-center mb-8 pb-6 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-600 dark:text-slate-400">Qty:</span>
+                <select 
+                  className="bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg px-4 py-2 border-none focus:ring-2 focus:ring-primary/50 outline-none cursor-pointer"
+                  value={qty} 
+                  onChange={(e) => setQty(Number(e.target.value))}
+                >
+                  {[...Array(product.countInStock).keys()].map((x) => (
+                    <option key={x + 1} value={x + 1}>
+                      {x + 1}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             
             <button 
               disabled={product.countInStock === 0}
               className="w-full btn-primary py-4 text-lg"
+              onClick={addToCartHandler}
             >
               Add To Cart
             </button>
