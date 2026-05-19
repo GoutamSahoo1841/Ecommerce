@@ -90,3 +90,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Created `ProductScreen.jsx` with a premium, responsive layout for individual product details
 - [x] Implemented dynamic routing (`/product/:id`) in `main.jsx`
 - [x] Wired up product cards on the `HomeScreen` to navigate to the `ProductScreen`
+
+### Day 15
+- [x] Installed `axios` to make HTTP requests from the frontend
+- [x] Configured Vite proxy in `vite.config.js` to route `/api` and `/uploads` requests to the backend server
+- [x] Replaced mock data with real data fetching in `HomeScreen.jsx` using `useEffect` and `useState`
+- [x] Added premium loading spinners and error states to `HomeScreen.jsx`
+- [x] Implemented single product data fetching in `ProductScreen.jsx` with loading/error states

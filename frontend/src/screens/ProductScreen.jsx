@@ -1,10 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import products from '../products';
+import axios from 'axios';
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
-  const product = products.find((p) => p._id === productId);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const { data } = await axios.get(`/api/products/${productId}`);
+        setProduct(data);
+      } catch (err) {
+        setError(err.response && err.response.data.message ? err.response.data.message : err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [productId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 dark:bg-red-900/20 text-red-500 p-6 rounded-2xl border border-red-200 dark:border-red-800">
+        {error}
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -37,8 +70,8 @@ const ProductScreen = () => {
           
           <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
             <div className="flex text-yellow-400">
-              {'★'.repeat(Math.floor(product.rating))}
-              {'☆'.repeat(5 - Math.floor(product.rating))}
+              {'★'.repeat(Math.floor(product.rating || 0))}
+              {'☆'.repeat(5 - Math.floor(product.rating || 0))}
             </div>
             <span className="text-sm text-slate-500">{product.rating} rating from {product.numReviews} reviews</span>
           </div>
