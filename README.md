@@ -68,3 +68,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Implemented `orderRoutes` with protected and admin-only endpoints
 - [x] Wired up `orderRoutes` in the main application `app.js`
 - [x] Completed Core MVP Backend for Orders
+
+### Day 11
+- [x] Installed `multer` for handling multipart/form-data
+- [x] Implemented `uploadRoutes` to allow image uploads to the server
+- [x] Added `/api/config/paypal` endpoint to serve PayPal client ID to the frontend
+- [x] Configured Express to serve the `/uploads` directory statically
