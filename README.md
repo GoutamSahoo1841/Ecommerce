@@ -62,3 +62,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Added keyword search functionality to `getProducts`
 - [x] Added pagination feature to `getProducts` controller
 - [x] Integrated new product endpoints into `productRoutes.js`
+
+### Day 10
+- [x] Implemented `orderController` to manage orders (create, get by ID, update to paid/delivered, get user orders, get all orders)
+- [x] Implemented `orderRoutes` with protected and admin-only endpoints
+- [x] Wired up `orderRoutes` in the main application `app.js`
+- [x] Completed Core MVP Backend for Orders
