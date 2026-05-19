@@ -74,3 +74,7 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Implemented `uploadRoutes` to allow image uploads to the server
 - [x] Added `/api/config/paypal` endpoint to serve PayPal client ID to the frontend
 - [x] Configured Express to serve the `/uploads` directory statically
+
+### Day 12
+- [x] Initialized React frontend application using Vite
+- [x] Installed base frontend dependencies
