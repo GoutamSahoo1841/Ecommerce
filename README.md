@@ -118,3 +118,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Built a reusable `FormContainer.jsx` wrapper for authentication and checkout flows
 - [x] Implemented a premium `LoginScreen.jsx` UI with loading states and error handling
 - [x] Refactored `Header.jsx` to dynamically render user information and a logout dropdown menu
+
+### Day 19
+- [x] Created `RegisterScreen.jsx` using the reusable `FormContainer`
+- [x] Integrated `useRegisterMutation` from `usersApiSlice` to register new users
+- [x] Implemented password confirmation validation on the frontend
+- [x] Configured automatic login (`setCredentials`) and redirect upon successful registration
