@@ -78,3 +78,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 ### Day 12
 - [x] Initialized React frontend application using Vite
 - [x] Installed base frontend dependencies
+
+### Day 13
+- [x] Installed and configured Tailwind CSS for styling
+- [x] Setup React Router (`react-router-dom`) for frontend navigation
+- [x] Built the core `App.jsx` layout with premium glassmorphism Header and Footer components
+- [x] Implemented a visually stunning `HomeScreen` to display mock product cards
