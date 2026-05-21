@@ -131,3 +131,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Added `/profile` route to React Router configuration in `main.jsx`
 - [x] Implemented backend dummy `logoutUser` controller and `/logout` route to resolve 404s
 - [x] Completed Core Frontend Authentication Flow
+
+### Day 21
+- [x] Added `saveShippingAddress` reducer to `cartSlice.js` and local storage persistence
+- [x] Created `PrivateRoute.jsx` component to protect checkout and profile routes
+- [x] Created a premium `CheckoutSteps.jsx` progress indicator component
+- [x] Built `ShippingScreen.jsx` to collect and validate the user's delivery address
+- [x] Updated React Router in `main.jsx` to enforce `PrivateRoute` on `/shipping` and `/profile`
