@@ -138,3 +138,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Created a premium `CheckoutSteps.jsx` progress indicator component
 - [x] Built `ShippingScreen.jsx` to collect and validate the user's delivery address
 - [x] Updated React Router in `main.jsx` to enforce `PrivateRoute` on `/shipping` and `/profile`
+
+### Day 22
+- [x] Added `savePaymentMethod` and `clearCartItems` to `cartSlice.js`
+- [x] Implemented `ordersApiSlice.js` with `createOrder` endpoint
+- [x] Created `PaymentScreen.jsx` to allow users to select their payment method
+- [x] Built a comprehensive `PlaceOrderScreen.jsx` UI to review order details and place the order
+- [x] Updated React Router to protect the new `/payment` and `/placeorder` routes
