@@ -26,6 +26,13 @@ export const authUser = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Logout user / clear cookie
+// @route   POST /api/users/logout
+// @access  Private
+export const logoutUser = asyncHandler(async (req, res) => {
+  res.status(200).json({ message: 'Logged out successfully' });
+});
+
 // @desc    Register a new user
 // @route   POST /api/users
 // @access  Public

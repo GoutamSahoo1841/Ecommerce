@@ -124,3 +124,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Integrated `useRegisterMutation` from `usersApiSlice` to register new users
 - [x] Implemented password confirmation validation on the frontend
 - [x] Configured automatic login (`setCredentials`) and redirect upon successful registration
+
+### Day 20
+- [x] Added `profile` endpoint mutation to `usersApiSlice.js`
+- [x] Built a premium `ProfileScreen.jsx` to allow authenticated users to update their details
+- [x] Added `/profile` route to React Router configuration in `main.jsx`
+- [x] Implemented backend dummy `logoutUser` controller and `/logout` route to resolve 404s
+- [x] Completed Core Frontend Authentication Flow
