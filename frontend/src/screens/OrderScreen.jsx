@@ -1,11 +1,67 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useGetOrderDetailsQuery } from '../slices/ordersApiSlice';
+import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
+import { 
+  useGetOrderDetailsQuery, 
+  usePayOrderMutation, 
+  useGetPayPalClientIdQuery 
+} from '../slices/ordersApiSlice';
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
 
-  const { data: order, isLoading, error } = useGetOrderDetailsQuery(orderId);
+  const { data: order, refetch, isLoading, error } = useGetOrderDetailsQuery(orderId);
+
+  const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+  const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
+  const { data: paypal, isLoading: loadingPayPal, error: errorPayPal } = useGetPayPalClientIdQuery();
+
+  useEffect(() => {
+    if (!errorPayPal && !loadingPayPal && paypal.clientId) {
+      const loadPayPalScript = async () => {
+        paypalDispatch({
+          type: 'resetOptions',
+          value: {
+            'client-id': paypal.clientId,
+            currency: 'USD',
+          },
+        });
+        paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
+      };
+      if (order && !order.isPaid) {
+        if (!window.paypal) {
+          loadPayPalScript();
+        }
+      }
+    }
+  }, [order, paypal, paypalDispatch, loadingPayPal, errorPayPal]);
+
+  const onApprove = async (data, actions) => {
+    return actions.order.capture().then(async (details) => {
+      try {
+        await payOrder({ orderId, details });
+        refetch();
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  };
+
+  const onError = (err) => {
+    console.error(err);
+  };
+
+  const createOrder = (data, actions) => {
+    return actions.order.create({
+      purchase_units: [
+        {
+          amount: {
+            value: order.totalPrice,
+          },
+        },
+      ],
+    });
+  };
 
   if (isLoading) {
     return (
@@ -125,7 +181,22 @@ const OrderScreen = () => {
               </div>
             </div>
 
-            {/* PayPal integration placeholder will go here eventually */}
+            {!order.isPaid && (
+              <div className="mt-6 border-t border-slate-100 dark:border-slate-700 pt-6">
+                {loadingPay && <div className="text-center py-2 text-slate-500">Processing Payment...</div>}
+                {isPending ? (
+                  <div className="flex justify-center items-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                  </div>
+                ) : (
+                  <PayPalButtons
+                    createOrder={createOrder}
+                    onApprove={onApprove}
+                    onError={onError}
+                  ></PayPalButtons>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

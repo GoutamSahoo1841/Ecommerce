@@ -151,3 +151,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Created a premium `OrderScreen.jsx` UI to display shipping, payment, and item details for a specific order
 - [x] Integrated dynamic status alerts for payment (`isPaid`) and delivery (`isDelivered`) statuses
 - [x] Updated React Router to protect the new `/order/:id` route
+
+### Day 24
+- [x] Installed `@paypal/react-paypal-js` to implement official PayPal buttons
+- [x] Added `payOrder` mutation and `getPayPalClientId` query to `ordersApiSlice.js`
+- [x] Wrapped the frontend application in `PayPalScriptProvider` for dynamic script loading
+- [x] Implemented PayPal buttons in `OrderScreen.jsx` that trigger the backend payment update upon successful transaction
