@@ -157,3 +157,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Added `payOrder` mutation and `getPayPalClientId` query to `ordersApiSlice.js`
 - [x] Wrapped the frontend application in `PayPalScriptProvider` for dynamic script loading
 - [x] Implemented PayPal buttons in `OrderScreen.jsx` that trigger the backend payment update upon successful transaction
+
+### Day 25
+- [x] Added `getMyOrders` query to `ordersApiSlice.js` to fetch a user's past orders
+- [x] Refactored `ProfileScreen.jsx` to execute the query and replace the placeholder
+- [x] Built a responsive data table to display order ID, date, total, and visual status indicators (paid/delivered)
+- [x] Wired up a "Details" link on each row to route directly to the specific `/order/:id` screen
