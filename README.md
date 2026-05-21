@@ -145,3 +145,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Created `PaymentScreen.jsx` to allow users to select their payment method
 - [x] Built a comprehensive `PlaceOrderScreen.jsx` UI to review order details and place the order
 - [x] Updated React Router to protect the new `/payment` and `/placeorder` routes
+
+### Day 23
+- [x] Added `getOrderDetails` query to `ordersApiSlice.js`
+- [x] Created a premium `OrderScreen.jsx` UI to display shipping, payment, and item details for a specific order
+- [x] Integrated dynamic status alerts for payment (`isPaid`) and delivery (`isDelivered`) statuses
+- [x] Updated React Router to protect the new `/order/:id` route

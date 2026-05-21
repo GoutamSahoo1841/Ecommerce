@@ -17,6 +17,7 @@ import ProfileScreen from './screens/ProfileScreen.jsx';
 import ShippingScreen from './screens/ShippingScreen.jsx';
 import PaymentScreen from './screens/PaymentScreen.jsx';
 import PlaceOrderScreen from './screens/PlaceOrderScreen.jsx';
+import OrderScreen from './screens/OrderScreen.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 
 const router = createBrowserRouter(
@@ -32,6 +33,7 @@ const router = createBrowserRouter(
         <Route path="/shipping" element={<ShippingScreen />} />
         <Route path="/payment" element={<PaymentScreen />} />
         <Route path="/placeorder" element={<PlaceOrderScreen />} />
+        <Route path="/order/:id" element={<OrderScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
       </Route>
     </Route>
