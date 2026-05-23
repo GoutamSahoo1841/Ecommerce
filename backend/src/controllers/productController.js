@@ -17,12 +17,23 @@ const getProducts = asyncHandler(async (req, res) => {
       }
     : {};
 
-  const count = await Product.countDocuments({ ...keyword });
-  const products = await Product.find({ ...keyword })
+  const category = req.query.category && req.query.category !== 'all' ? { category: req.query.category } : {};
+  const rating = req.query.rating && req.query.rating !== 'all' ? { rating: { $gte: Number(req.query.rating) } } : {};
+  const price = req.query.price && req.query.price !== 'all' ? { 
+    price: { 
+      $gte: Number(req.query.price.split('-')[0]), 
+      $lte: Number(req.query.price.split('-')[1]) 
+    } 
+  } : {};
+
+  const filter = { ...keyword, ...category, ...rating, ...price };
+
+  const count = await Product.countDocuments(filter);
+  const products = await Product.find(filter)
     .limit(pageSize)
     .skip(pageSize * (page - 1));
 
-  res.json({ products, page, pages: Math.ceil(count / pageSize) });
+  res.json({ products, page, pages: Math.ceil(count / pageSize), count });
 });
 
 // @desc    Fetch single product
@@ -157,6 +168,14 @@ const getTopProducts = asyncHandler(async (req, res) => {
   res.json(products);
 });
 
+// @desc    Get all product categories
+// @route   GET /api/products/categories
+// @access  Public
+const getProductCategories = asyncHandler(async (req, res) => {
+  const categories = await Product.find().distinct('category');
+  res.json(categories);
+});
+
 export {
   getProducts,
   getProductById,
@@ -165,4 +184,5 @@ export {
   deleteProduct,
   createProductReview,
   getTopProducts,
+  getProductCategories,
 };

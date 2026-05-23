@@ -240,3 +240,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Installed `socket.io-client` and `react-toastify` in the frontend
 - [x] Integrated WebSockets in `App.jsx` to automatically connect and join the `admin` room if the logged-in user is an administrator
 - [x] Implemented real-time popup toast notifications alerting admins globally when a new customer places an order
+
+### Day 37
+- [x] Upgraded the backend `getProducts` controller to parse and execute complex MongoDB queries for Categories, Price Ranges, and Customer Ratings
+- [x] Added a `getProductCategories` endpoint to dynamically fetch all unique product categories stored in the database
+- [x] Re-engineered frontend routing to map `/search` to a brand-new, dedicated `SearchScreen.jsx` component
+- [x] Developed an Advanced Search Sidebar featuring dynamic URL query parameters for instantaneous, multi-faceted filtering
+- [x] Cleaned up `HomeScreen.jsx` to serve purely as an elegant landing page
