@@ -233,3 +233,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Upgraded `ProductScreen.jsx` with a dynamic, toggleable heart icon for adding/removing items
 - [x] Built `WishlistScreen.jsx` to render saved items in a clean grid, complete with "Add to Cart" integration
 - [x] Registered the `/wishlist` route and added a dynamic Wishlist badge to the navigation `Header.jsx`
+
+### Day 36
+- [x] Installed `socket.io` in the backend and configured it to attach to the Express HTTP server
+- [x] Updated `orderController.js` to emit a `newOrder` event to the `admin` room whenever a new order is successfully processed
+- [x] Installed `socket.io-client` and `react-toastify` in the frontend
+- [x] Integrated WebSockets in `App.jsx` to automatically connect and join the `admin` room if the logged-in user is an administrator
+- [x] Implemented real-time popup toast notifications alerting admins globally when a new customer places an order

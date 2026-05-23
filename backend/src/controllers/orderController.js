@@ -32,6 +32,12 @@ const addOrderItems = asyncHandler(async (req, res) => {
 
     const createdOrder = await order.save();
 
+    // Emit socket event to admin room
+    const io = req.app.get('io');
+    if (io) {
+      io.to('admin').emit('newOrder', createdOrder);
+    }
+
     res.status(201).json(createdOrder);
   }
 });

@@ -1,9 +1,48 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { io } from 'socket.io-client';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
 const App = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    let socket;
+    
+    // Connect to socket if user is admin
+    if (userInfo && userInfo.isAdmin) {
+      // Create socket connection
+      // For local development it connects to the same host
+      socket = io(window.location.origin === 'http://localhost:5173' ? 'http://localhost:5000' : '/');
+      
+      // Join admin room
+      socket.emit('join_admin');
+
+      // Listen for new orders
+      socket.on('newOrder', (order) => {
+        toast.info(`🔔 New Order Alert! Order ID: ${order._id} for $${order.totalPrice}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
+        });
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [userInfo]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -13,6 +52,7 @@ const App = () => {
         </div>
       </main>
       <Footer />
+      <ToastContainer />
     </div>
   );
 };
