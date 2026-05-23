@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, removeFromCart } from '../slices/cartSlice';
+import { toast } from 'react-toastify';
+import { addToCart, removeFromCart, applyCoupon, removeCoupon } from '../slices/cartSlice';
+import { useLazyGetCouponByCodeQuery } from '../slices/couponsApiSlice';
 
 const CartScreen = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const cart = useSelector((state) => state.cart);
-  const { cartItems } = cart;
+  const { cartItems, couponCode, discountPercentage } = cart;
+
+  const [couponInput, setCouponInput] = useState('');
+
+  const [getCoupon, { isLoading: loadingCoupon }] = useLazyGetCouponByCodeQuery();
 
   const addToCartHandler = async (product, qty) => {
     dispatch(addToCart({ ...product, qty }));
@@ -20,6 +26,27 @@ const CartScreen = () => {
 
   const checkoutHandler = () => {
     navigate('/login?redirect=/shipping');
+  };
+
+  const applyCouponHandler = async (e) => {
+    e.preventDefault();
+    if (!couponInput) {
+      toast.error('Please enter a coupon code');
+      return;
+    }
+    try {
+      const res = await getCoupon(couponInput).unwrap();
+      dispatch(applyCoupon({ code: res.code, discountPercentage: res.discountPercentage }));
+      toast.success('Coupon applied successfully');
+      setCouponInput('');
+    } catch (err) {
+      toast.error(err?.data?.message || err.error || 'Invalid coupon');
+    }
+  };
+
+  const removeCouponHandler = () => {
+    dispatch(removeCoupon());
+    toast.success('Coupon removed');
   };
 
   return (
@@ -91,6 +118,50 @@ const CartScreen = () => {
                     ${cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2)}
                   </span>
                 </div>
+                {discountPercentage > 0 && (
+                  <div className="flex justify-between items-center text-emerald-500 pb-4 border-b border-slate-100 dark:border-slate-700">
+                    <span>Discount ({discountPercentage}%)</span>
+                    <span className="text-xl font-bold">
+                      -${((cartItems.reduce((acc, item) => acc + item.qty * item.price, 0) * discountPercentage) / 100).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Coupon Section */}
+              <div className="mb-8">
+                {couponCode ? (
+                  <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                      <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider block mb-1">Applied Coupon</span>
+                      <span className="text-emerald-700 dark:text-emerald-300 font-bold text-lg">{couponCode}</span>
+                    </div>
+                    <button 
+                      onClick={removeCouponHandler}
+                      className="text-emerald-600 dark:text-emerald-400 hover:text-red-500 transition-colors"
+                      title="Remove Coupon"
+                    >
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={applyCouponHandler} className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="Promo Code" 
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                      className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all uppercase"
+                    />
+                    <button 
+                      type="submit" 
+                      disabled={loadingCoupon}
+                      className="bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white px-6 rounded-xl font-bold transition-colors disabled:opacity-50"
+                    >
+                      {loadingCoupon ? '...' : 'Apply'}
+                    </button>
+                  </form>
+                )}
               </div>
               
               <button 

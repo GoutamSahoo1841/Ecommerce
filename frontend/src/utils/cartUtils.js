@@ -10,16 +10,24 @@ export const updateCart = (state) => {
   );
   state.itemsPrice = addDecimals(itemsPrice);
 
-  // Calculate shipping price (If order is > $100 then free, else $10 shipping)
-  const shippingPrice = itemsPrice > 100 ? 0 : 10;
+  // Calculate discount price
+  const discountPrice = state.discountPercentage 
+    ? (itemsPrice * state.discountPercentage) / 100 
+    : 0;
+  state.discountPrice = addDecimals(discountPrice);
+
+  const discountedItemsPrice = itemsPrice - discountPrice;
+
+  // Calculate shipping price (If discounted order is > $100 then free, else $10 shipping)
+  const shippingPrice = discountedItemsPrice > 100 ? 0 : 10;
   state.shippingPrice = addDecimals(shippingPrice);
 
   // Calculate tax price (15% tax)
-  const taxPrice = 0.15 * itemsPrice;
+  const taxPrice = 0.15 * discountedItemsPrice;
   state.taxPrice = addDecimals(taxPrice);
 
   // Calculate total price
-  const totalPrice = itemsPrice + shippingPrice + taxPrice;
+  const totalPrice = discountedItemsPrice + shippingPrice + taxPrice;
   state.totalPrice = addDecimals(totalPrice);
 
   // Save to localStorage

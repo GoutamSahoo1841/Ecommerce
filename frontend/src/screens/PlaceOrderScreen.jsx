@@ -31,6 +31,8 @@ const PlaceOrderScreen = () => {
         shippingPrice: cart.shippingPrice,
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
+        discountPrice: cart.discountPrice,
+        couponCode: cart.couponCode,
       }).unwrap();
       dispatch(clearCartItems());
       navigate(`/order/${res._id}`);
@@ -99,6 +101,12 @@ const PlaceOrderScreen = () => {
                 <span>Items</span>
                 <span className="font-medium">${cart.itemsPrice}</span>
               </div>
+              {cart.discountPrice > 0 && (
+                <div className="flex justify-between text-emerald-500">
+                  <span>Discount ({cart.couponCode})</span>
+                  <span className="font-medium">-${cart.discountPrice}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span>Shipping</span>
                 <span className="font-medium">${cart.shippingPrice}</span>
