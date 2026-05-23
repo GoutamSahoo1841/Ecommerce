@@ -15,6 +15,8 @@ import SearchScreen from './screens/SearchScreen.jsx';
 import WishlistScreen from './screens/WishlistScreen.jsx';
 import LoginScreen from './screens/LoginScreen.jsx';
 import RegisterScreen from './screens/RegisterScreen.jsx';
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen.jsx';
+import ResetPasswordScreen from './screens/ResetPasswordScreen.jsx';
 import ProfileScreen from './screens/ProfileScreen.jsx';
 import ShippingScreen from './screens/ShippingScreen.jsx';
 import PaymentScreen from './screens/PaymentScreen.jsx';
@@ -40,6 +42,8 @@ const router = createBrowserRouter(
       <Route path="/wishlist" element={<WishlistScreen />} />
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
+      <Route path="/forgotpassword" element={<ForgotPasswordScreen />} />
+      <Route path="/resetpassword/:token" element={<ResetPasswordScreen />} />
       
       <Route path="" element={<PrivateRoute />}>
         <Route path="/shipping" element={<ShippingScreen />} />

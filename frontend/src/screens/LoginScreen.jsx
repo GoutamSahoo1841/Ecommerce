@@ -66,7 +66,7 @@ const LoginScreen = () => {
         <div>
           <div className="flex justify-between items-center mb-2">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
-            <a href="#" className="text-sm text-primary hover:underline">Forgot password?</a>
+            <Link to="/forgotpassword" className="text-sm text-primary hover:underline">Forgot password?</Link>
           </div>
           <input
             type="password"

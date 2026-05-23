@@ -247,3 +247,13 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Re-engineered frontend routing to map `/search` to a brand-new, dedicated `SearchScreen.jsx` component
 - [x] Developed an Advanced Search Sidebar featuring dynamic URL query parameters for instantaneous, multi-faceted filtering
 - [x] Cleaned up `HomeScreen.jsx` to serve purely as an elegant landing page
+- [x] Extracted product layout into a reusable `Product.jsx` component to optimize architecture and resolve Vite HMR caching
+
+### Day 38
+- [x] Integrated `nodemailer` into the backend for SMTP email delivery
+- [x] Upgraded the `User` MongoDB model with `resetPasswordToken` and `resetPasswordExpire` fields along with a built-in cryptographic token generator
+- [x] Developed robust `forgotPassword` and `resetPassword` controllers mimicking production-grade security standards
+- [x] Created `sendEmail.js` utility utilizing Nodemailer's Ethereal Email to generate mock SMTP credentials for local testing
+- [x] Built `ForgotPasswordScreen.jsx` and `ResetPasswordScreen.jsx` in React and linked them up via `react-router-dom`
+- [x] Updated RTK Query API Slices to seamlessly handle the new password reset endpoints
+
