@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
@@ -7,6 +7,7 @@ import {
 } from '../slices/productsApiSlice';
 import { addToCart } from '../slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../slices/wishlistSlice';
+import { addRecentlyViewed } from '../slices/recentlyViewedSlice';
 import Meta from '../components/Meta';
 
 const ProductScreen = () => {
@@ -25,6 +26,19 @@ const ProductScreen = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
   const { wishlistItems } = useSelector((state) => state.wishlist);
+
+  useEffect(() => {
+    if (product) {
+      dispatch(addRecentlyViewed({
+        _id: product._id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        rating: product.rating,
+        numReviews: product.numReviews,
+      }));
+    }
+  }, [dispatch, product]);
 
   const existInWishlist = wishlistItems.find((x) => x._id === product?._id);
 

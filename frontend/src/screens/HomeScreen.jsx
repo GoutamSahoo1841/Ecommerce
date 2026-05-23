@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
 import Paginate from '../components/Paginate';
 import ProductCarousel from '../components/ProductCarousel';
@@ -12,11 +13,29 @@ const HomeScreen = () => {
   const { data, isLoading, error } = useGetProductsQuery({ pageNumber });
   const products = data?.products || [];
 
+  const { recentlyViewedItems } = useSelector((state) => state.recentlyViewed);
+
   return (
     <div>
       <Meta />
       
       <ProductCarousel />
+
+      {recentlyViewedItems && recentlyViewedItems.length > 0 && !pageNumber && (
+        <div className="mb-16 mt-12">
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6 flex items-center gap-3">
+            <svg className="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            Recently <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500">Viewed</span>
+          </h2>
+          <div className="flex overflow-x-auto gap-6 pb-4 custom-scrollbar snap-x">
+            {recentlyViewedItems.map((product) => (
+              <div key={product._id} className="min-w-[280px] sm:min-w-[320px] snap-start">
+                <Product product={product} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mb-12 mt-8">
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
