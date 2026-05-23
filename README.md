@@ -289,3 +289,8 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Engineered a beautifully animated, globally available `<ChatBox />` floating widget in React for real-time customer support
 - [x] Developed a dedicated `/admin/chat` Admin Dashboard that streams active user sessions instantly and enables targeted 1-on-1 socket messaging
 
+### Day 58
+- [x] Hardened backend infrastructure with `helmet` to strictly secure HTTP headers against XSS and Clickjacking
+- [x] Deployed `express-mongo-sanitize` to intercept and neutralize MongoDB NoSQL Operator Injection vectors
+- [x] Configured `express-rate-limit` to globally restrict API requests, neutralizing brute-force and DDoS attacks
+
