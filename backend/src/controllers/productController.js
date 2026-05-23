@@ -181,6 +181,25 @@ const getProductCategories = asyncHandler(async (req, res) => {
   res.json(categories);
 });
 
+// @desc    Get related products
+// @route   GET /api/products/:id/related
+// @access  Public
+const getRelatedProducts = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (product) {
+    const relatedProducts = await Product.find({
+      _id: { $ne: product._id }, // Exclude current product
+      category: product.category, // Must match same category
+    }).limit(4);
+
+    res.json(relatedProducts);
+  } else {
+    res.status(404);
+    throw new Error('Product not found');
+  }
+});
+
 export {
   getProducts,
   getProductById,
@@ -190,4 +209,5 @@ export {
   createProductReview,
   getTopProducts,
   getProductCategories,
+  getRelatedProducts,
 };

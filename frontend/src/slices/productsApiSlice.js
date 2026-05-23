@@ -23,6 +23,12 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       }),
       keepUnusedDataFor: 5,
     }),
+    getRelatedProducts: builder.query({
+      query: (productId) => ({
+        url: `/api/products/${productId}/related`,
+      }),
+      keepUnusedDataFor: 5,
+    }),
     createProduct: builder.mutation({
       query: () => ({
         url: PRODUCTS_URL,
@@ -83,6 +89,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
 export const { 
   useGetProductsQuery, 
   useGetProductDetailsQuery,
+  useGetRelatedProductsQuery,
   useCreateProductMutation,
   useDeleteProductMutation,
   useUpdateProductMutation,

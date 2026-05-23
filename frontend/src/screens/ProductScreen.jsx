@@ -3,12 +3,14 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
   useGetProductDetailsQuery,
-  useCreateProductReviewMutation 
+  useCreateProductReviewMutation,
+  useGetRelatedProductsQuery,
 } from '../slices/productsApiSlice';
 import { addToCart } from '../slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../slices/wishlistSlice';
 import { addRecentlyViewed } from '../slices/recentlyViewedSlice';
 import Meta from '../components/Meta';
+import Product from '../components/Product';
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
@@ -21,6 +23,7 @@ const ProductScreen = () => {
   const [activeImage, setActiveImage] = useState('');
 
   const { data: product, isLoading, error, refetch } = useGetProductDetailsQuery(productId);
+  const { data: relatedProducts, isLoading: loadingRelated } = useGetRelatedProductsQuery(productId);
 
   const [createProductReview, { isLoading: loadingProductReview }] = useCreateProductReviewMutation();
 
@@ -279,6 +282,21 @@ const ProductScreen = () => {
           </div>
         </div>
       </div>
+
+      {/* Recommendations Section */}
+      {relatedProducts && relatedProducts.length > 0 && (
+        <div className="mt-20 mb-10">
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-8 flex items-center gap-3">
+            <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+            You Might Also <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Like</span>
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {relatedProducts.map((relatedProduct) => (
+              <Product key={relatedProduct._id} product={relatedProduct} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
