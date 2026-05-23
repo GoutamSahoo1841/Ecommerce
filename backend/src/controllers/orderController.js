@@ -1,5 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
+import User from '../models/userModel.js';
+import Product from '../models/productModel.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -111,6 +113,38 @@ const getOrders = asyncHandler(async (req, res) => {
   res.json(orders);
 });
 
+// @desc    Get dashboard data
+// @route   GET /api/orders/dashboard
+// @access  Private/Admin
+const getDashboardData = asyncHandler(async (req, res) => {
+  const orders = await Order.find({});
+  const users = await User.find({});
+  const products = await Product.find({});
+
+  const totalSales = orders.reduce((acc, order) => acc + order.totalPrice, 0);
+
+  const salesData = await Order.aggregate([
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+        totalSales: { $sum: '$totalPrice' },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  res.json({
+    orders,
+    users,
+    products,
+    totalSales,
+    totalOrders: orders.length,
+    totalUsers: users.length,
+    totalProducts: products.length,
+    salesData,
+  });
+});
+
 export {
   addOrderItems,
   getOrderById,
@@ -118,4 +152,5 @@ export {
   updateOrderToDelivered,
   getMyOrders,
   getOrders,
+  getDashboardData,
 };

@@ -47,6 +47,12 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
         method: 'PUT',
       }),
     }),
+    getDashboardData: builder.query({
+      query: () => ({
+        url: `${ORDERS_URL}/dashboard`,
+      }),
+      keepUnusedDataFor: 5,
+    }),
   }),
 });
 
@@ -58,4 +64,5 @@ export const {
   useGetMyOrdersQuery,
   useGetOrdersQuery,
   useDeliverOrderMutation,
+  useGetDashboardDataQuery,
 } = ordersApiSlice;

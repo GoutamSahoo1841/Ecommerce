@@ -219,3 +219,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Installed `concurrently` for running backend and frontend dev servers simultaneously from the root directory
 - [x] Added deployment scripts (`npm run build`) to automatically install frontend packages and generate the optimized production build
 - [x] Resolved component import warnings and ensured zero-error builds across the frontend
+
+### Day 34
+- [x] Integrated `recharts` for scalable SVG data visualization
+- [x] Created `getDashboardData` controller to aggregate totals (Users, Orders, Revenue) and summarize sales by date via MongoDB aggregations
+- [x] Added `getDashboardData` to the `ordersApiSlice.js`
+- [x] Developed the `DashboardScreen.jsx` with summary cards, a Sales History Line Chart, and a Product Categories Pie Chart
+- [x] Registered the `/admin/dashboard` protected route and added a quick-link inside the Admin dropdown
