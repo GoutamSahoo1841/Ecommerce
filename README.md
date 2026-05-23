@@ -188,3 +188,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Created `UserListScreen.jsx` for admins to view and manage all users
 - [x] Implemented delete user functionality with a confirmation prompt
 - [x] Registered `/admin/userlist` route in `main.jsx`
+
+### Day 30
+- [x] Added `getUserDetails` query and `updateUser` mutation to `usersApiSlice.js`
+- [x] Created `UserEditScreen.jsx` UI to allow admins to edit user details (Name, Email, isAdmin)
+- [x] Integrated auto-population of existing user data into the edit form
+- [x] Registered `/admin/user/:id/edit` route in `main.jsx`
