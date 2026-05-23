@@ -1,13 +1,16 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { 
   useGetProductsQuery, 
   useCreateProductMutation, 
   useDeleteProductMutation 
 } from '../../slices/productsApiSlice';
+import Paginate from '../Paginate';
 
 const ProductListScreen = () => {
-  const { data: products, isLoading, error, refetch } = useGetProductsQuery();
+  const { pageNumber } = useParams();
+  const { data, isLoading, error, refetch } = useGetProductsQuery({ pageNumber });
+  const products = data?.products || [];
 
   const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation();
   const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation();
@@ -122,6 +125,10 @@ const ProductListScreen = () => {
             </table>
           </div>
         </div>
+      )}
+
+      {data?.pages && data?.pages > 1 && (
+        <Paginate pages={data.pages} page={data.page} isAdmin={true} />
       )}
     </div>
   );

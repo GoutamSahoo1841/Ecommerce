@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLogoutMutation } from '../slices/usersApiSlice';
 import { logout } from '../slices/authSlice';
+import SearchBox from './SearchBox';
 
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart);
@@ -37,16 +38,7 @@ const Header = () => {
           </div>
           
           <div className="hidden md:block flex-1 max-w-2xl mx-8">
-            <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Search products..." 
-                className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-full py-2.5 pl-5 pr-10 focus:ring-2 focus:ring-primary/50 text-sm transition-shadow"
-              />
-              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-              </button>
-            </div>
+            <SearchBox />
           </div>
 
           <div className="flex items-center gap-6">

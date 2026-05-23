@@ -194,3 +194,11 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Created `UserEditScreen.jsx` UI to allow admins to edit user details (Name, Email, isAdmin)
 - [x] Integrated auto-population of existing user data into the edit form
 - [x] Registered `/admin/user/:id/edit` route in `main.jsx`
+
+### Day 31
+- [x] Updated `productsApiSlice.js` to accept `keyword` and `pageNumber` query parameters
+- [x] Created `SearchBox.jsx` component and integrated it into `Header.jsx` for product searching
+- [x] Created a dynamic `Paginate.jsx` component to handle frontend pagination
+- [x] Updated `HomeScreen.jsx` to parse search keywords and page numbers from the URL and pass them to the query
+- [x] Integrated pagination into the admin `ProductListScreen.jsx`
+- [x] Registered all new search and pagination routes in `main.jsx`

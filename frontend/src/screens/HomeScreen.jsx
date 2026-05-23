@@ -1,21 +1,35 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
+import Paginate from '../components/Paginate';
 
 const HomeScreen = () => {
-  const { data, isLoading, error } = useGetProductsQuery();
-  // Depending on API response, data might be { products: [...] } or just [...]
-  const products = data?.products || data || [];
+  const { keyword, pageNumber } = useParams();
+
+  const { data, isLoading, error } = useGetProductsQuery({ keyword, pageNumber });
+  // Depending on API response, data might be { products: [...], page, pages }
+  const products = data?.products || [];
 
   return (
     <div>
+      {keyword && (
+        <Link to="/" className="inline-flex items-center text-slate-400 hover:text-white mb-6 transition-colors duration-200">
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          Go Back
+        </Link>
+      )}
+
       <div className="mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
-          Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Products</span>
+          {keyword ? 'Search Results' : (
+            <>Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Products</span></>
+          )}
         </h1>
-        <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
-          Discover our new arrivals and premium electronics tailored just for you.
-        </p>
+        {!keyword && (
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
+            Discover our new arrivals and premium electronics tailored just for you.
+          </p>
+        )}
       </div>
 
       {isLoading ? (
@@ -59,6 +73,14 @@ const HomeScreen = () => {
             </div>
           ))}
         </div>
+      )}
+      
+      {data?.pages && data?.pages > 1 && (
+        <Paginate
+          pages={data.pages}
+          page={data.page}
+          keyword={keyword ? keyword : ''}
+        />
       )}
     </div>
   );
