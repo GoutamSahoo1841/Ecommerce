@@ -211,3 +211,11 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Added `getTopProducts` query and `createProductReview` mutation to `productsApiSlice.js`
 - [x] Integrated the `ProductCarousel` into the `HomeScreen.jsx`
 - [x] Implemented a Customer Reviews section with a secure submission form in `ProductScreen.jsx`
+
+### Day 33
+- [x] Prepared the application for production deployment
+- [x] Updated `backend/src/app.js` to serve frontend static build files when `NODE_ENV` is set to `production`
+- [x] Created a root `package.json` to manage cross-repository dependencies and root-level build commands
+- [x] Installed `concurrently` for running backend and frontend dev servers simultaneously from the root directory
+- [x] Added deployment scripts (`npm run build`) to automatically install frontend packages and generate the optimized production build
+- [x] Resolved component import warnings and ensured zero-error builds across the frontend

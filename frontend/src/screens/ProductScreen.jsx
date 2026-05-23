@@ -7,7 +7,6 @@ import {
 } from '../slices/productsApiSlice';
 import { addToCart } from '../slices/cartSlice';
 import Meta from '../components/Meta';
-import { addToCart } from '../slices/cartSlice';
 
 const ProductScreen = () => {
   const { id: productId } = useParams();

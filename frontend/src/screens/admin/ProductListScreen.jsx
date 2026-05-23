@@ -5,7 +5,7 @@ import {
   useCreateProductMutation, 
   useDeleteProductMutation 
 } from '../../slices/productsApiSlice';
-import Paginate from '../Paginate';
+import Paginate from '../../components/Paginate';
 
 const ProductListScreen = () => {
   const { pageNumber } = useParams();
