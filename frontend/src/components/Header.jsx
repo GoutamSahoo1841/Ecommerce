@@ -8,6 +8,7 @@ const Header = () => {
   const { cartItems } = useSelector((state) => state.cart);
   const { userInfo } = useSelector((state) => state.auth);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -93,6 +94,32 @@ const Header = () => {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 <span className="hidden sm:block">Sign In</span>
               </Link>
+            )}
+            
+            {userInfo && userInfo.isAdmin && (
+              <div className="relative">
+                <button 
+                  onClick={() => setAdminDropdownOpen(!adminDropdownOpen)}
+                  className="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-primary transition-colors font-medium focus:outline-none ml-2"
+                >
+                  <span>Admin</span>
+                  <svg className={`w-4 h-4 transition-transform ${adminDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                
+                {adminDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-lg py-2 border border-slate-100 dark:border-slate-700">
+                    <Link to="/admin/productlist" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
+                      Products
+                    </Link>
+                    <Link to="/admin/userlist" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
+                      Users
+                    </Link>
+                    <Link to="/admin/orderlist" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
+                      Orders
+                    </Link>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>

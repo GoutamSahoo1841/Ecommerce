@@ -163,3 +163,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Refactored `ProfileScreen.jsx` to execute the query and replace the placeholder
 - [x] Built a responsive data table to display order ID, date, total, and visual status indicators (paid/delivered)
 - [x] Wired up a "Details" link on each row to route directly to the specific `/order/:id` screen
+
+### Day 26
+- [x] Created `AdminRoute.jsx` component to protect admin-only routes
+- [x] Added `getOrders` and `deliverOrder` endpoints to `ordersApiSlice.js`
+- [x] Created `OrderListScreen.jsx` for admins to view and manage all orders
+- [x] Updated `Header.jsx` to include an Admin dropdown menu for authenticated admin users
+- [x] Added "Mark As Delivered" functionality to `OrderScreen.jsx` for admins

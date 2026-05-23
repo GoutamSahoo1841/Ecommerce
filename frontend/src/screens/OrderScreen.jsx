@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { 
   useGetOrderDetailsQuery, 
   usePayOrderMutation, 
-  useGetPayPalClientIdQuery 
+  useGetPayPalClientIdQuery,
+  useDeliverOrderMutation,
 } from '../slices/ordersApiSlice';
 
 const OrderScreen = () => {
@@ -13,8 +15,11 @@ const OrderScreen = () => {
   const { data: order, refetch, isLoading, error } = useGetOrderDetailsQuery(orderId);
 
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+  const [deliverOrder, { isLoading: loadingDeliver }] = useDeliverOrderMutation();
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
   const { data: paypal, isLoading: loadingPayPal, error: errorPayPal } = useGetPayPalClientIdQuery();
+
+  const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (!errorPayPal && !loadingPayPal && paypal.clientId) {
@@ -61,6 +66,15 @@ const OrderScreen = () => {
         },
       ],
     });
+  };
+
+  const deliverOrderHandler = async () => {
+    try {
+      await deliverOrder(orderId);
+      refetch();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   if (isLoading) {
@@ -195,6 +209,20 @@ const OrderScreen = () => {
                     onError={onError}
                   ></PayPalButtons>
                 )}
+              </div>
+            )}
+            
+            {loadingDeliver && <div className="text-center py-4"><div className="animate-spin inline-block rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div></div>}
+
+            {userInfo && userInfo.isAdmin && order.isPaid && !order.isDelivered && (
+              <div className="mt-6">
+                <button
+                  type="button"
+                  className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold py-3 px-4 rounded-xl transition-colors duration-200"
+                  onClick={deliverOrderHandler}
+                >
+                  Mark As Delivered
+                </button>
               </div>
             )}
           </div>
