@@ -170,3 +170,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Created `OrderListScreen.jsx` for admins to view and manage all orders
 - [x] Updated `Header.jsx` to include an Admin dropdown menu for authenticated admin users
 - [x] Added "Mark As Delivered" functionality to `OrderScreen.jsx` for admins
+
+### Day 27
+- [x] Added `createProduct` and `deleteProduct` mutations to `productsApiSlice.js`
+- [x] Created `ProductListScreen.jsx` for admins to view all products
+- [x] Implemented "Create Product" and "Delete Product" functionalities in `ProductListScreen.jsx`
+- [x] Registered `/admin/productlist` route in `main.jsx`
