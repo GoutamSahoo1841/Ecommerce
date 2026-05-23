@@ -17,6 +17,7 @@ const ProductScreen = () => {
   const [qty, setQty] = useState(1);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [activeImage, setActiveImage] = useState('');
 
   const { data: product, isLoading, error, refetch } = useGetProductDetailsQuery(productId);
 
@@ -82,6 +83,9 @@ const ProductScreen = () => {
     );
   }
 
+  const displayImage = activeImage || product.image;
+  const allImages = [product.image, ...(product.images || [])];
+
   return (
     <div>
       <Meta title={product.name} description={product.description} />
@@ -91,9 +95,28 @@ const ProductScreen = () => {
       </Link>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-        {/* Product Image */}
-        <div className="lg:col-span-1 rounded-3xl overflow-hidden bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 aspect-square flex items-center justify-center p-6">
-          <img src={product.image} alt={product.name} className="w-full h-auto object-cover rounded-2xl hover:scale-105 transition-transform duration-500" />
+        {/* Product Image Gallery */}
+        <div className="lg:col-span-1 flex flex-col gap-4">
+          <div className="rounded-3xl overflow-hidden bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 aspect-square flex items-center justify-center p-6">
+            <img src={displayImage} alt={product.name} className="w-full h-auto object-cover rounded-2xl hover:scale-105 transition-transform duration-500" />
+          </div>
+          {allImages.length > 1 && (
+            <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
+              {allImages.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveImage(img)}
+                  className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                    displayImage === img 
+                      ? 'border-primary shadow-md' 
+                      : 'border-transparent opacity-70 hover:opacity-100 bg-slate-100 dark:bg-slate-800'
+                  }`}
+                >
+                  <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Product Details */}

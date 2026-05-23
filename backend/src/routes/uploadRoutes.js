@@ -42,4 +42,12 @@ router.post('/', upload.single('image'), (req, res) => {
   });
 });
 
+router.post('/multiple', upload.array('images', 10), (req, res) => {
+  const filePaths = req.files.map((file) => `/${file.path.replace(/\\/g, '/')}`);
+  res.send({
+    message: 'Images Uploaded',
+    images: filePaths,
+  });
+});
+
 export default router;

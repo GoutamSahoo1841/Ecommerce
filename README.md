@@ -257,3 +257,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Built `ForgotPasswordScreen.jsx` and `ResetPasswordScreen.jsx` in React and linked them up via `react-router-dom`
 - [x] Updated RTK Query API Slices to seamlessly handle the new password reset endpoints
 
+### Day 39
+- [x] Upgraded the `Product` MongoDB schema to natively support an `images` array for multiple product shots
+- [x] Configured Multer in `uploadRoutes.js` to process batch file uploads via a new `/multiple` endpoint
+- [x] Enhanced `ProductEditScreen.jsx` UI to allow Admins to natively drag-and-drop multiple images into an organized gallery
+- [x] Transformed `ProductScreen.jsx` to render an interactive thumbnail gallery allowing users to instantly swap product images
+

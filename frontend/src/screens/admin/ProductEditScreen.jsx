@@ -3,7 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { 
   useGetProductDetailsQuery, 
   useUpdateProductMutation, 
-  useUploadProductImageMutation 
+  useUploadProductImageMutation,
+  useUploadMultipleProductImagesMutation
 } from '../../slices/productsApiSlice';
 
 const ProductEditScreen = () => {
@@ -12,6 +13,7 @@ const ProductEditScreen = () => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
   const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
   const [brand, setBrand] = useState('');
   const [category, setCategory] = useState('');
   const [countInStock, setCountInStock] = useState(0);
@@ -21,6 +23,7 @@ const ProductEditScreen = () => {
 
   const [updateProduct, { isLoading: loadingUpdate }] = useUpdateProductMutation();
   const [uploadProductImage, { isLoading: loadingUpload }] = useUploadProductImageMutation();
+  const [uploadMultipleProductImages, { isLoading: loadingMultipleUpload }] = useUploadMultipleProductImagesMutation();
 
   const navigate = useNavigate();
 
@@ -29,6 +32,7 @@ const ProductEditScreen = () => {
       setName(product.name);
       setPrice(product.price);
       setImage(product.image);
+      setImages(product.images || []);
       setBrand(product.brand);
       setCategory(product.category);
       setCountInStock(product.countInStock);
@@ -44,6 +48,7 @@ const ProductEditScreen = () => {
         name,
         price,
         image,
+        images,
         brand,
         category,
         countInStock,
@@ -69,6 +74,26 @@ const ProductEditScreen = () => {
       console.error(err?.data?.message || err.error);
       alert(err?.data?.message || err.error);
     }
+  };
+
+  const uploadMultipleFilesHandler = async (e) => {
+    const formData = new FormData();
+    const files = e.target.files;
+    for (let i = 0; i < files.length; i++) {
+      formData.append('images', files[i]);
+    }
+    try {
+      const res = await uploadMultipleProductImages(formData).unwrap();
+      alert(res.message);
+      setImages((prev) => [...prev, ...res.images]);
+    } catch (err) {
+      console.error(err?.data?.message || err.error);
+      alert(err?.data?.message || err.error);
+    }
+  };
+
+  const removeImage = (indexToRemove) => {
+    setImages(images.filter((_, index) => index !== indexToRemove));
   };
 
   return (
@@ -128,11 +153,11 @@ const ProductEditScreen = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Image</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Main Image</label>
               <div className="flex flex-col space-y-3">
                 <input
                   type="text"
-                  placeholder="Enter image url"
+                  placeholder="Enter main image url"
                   value={image}
                   onChange={(e) => setImage(e.target.value)}
                   className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
@@ -142,7 +167,37 @@ const ProductEditScreen = () => {
                   onChange={uploadFileHandler}
                   className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-600/20 file:text-indigo-400 hover:file:bg-indigo-600/30 transition-all cursor-pointer"
                 />
-                {loadingUpload && <div className="text-sm text-indigo-400 mt-2">Uploading image...</div>}
+                {loadingUpload && <div className="text-sm text-indigo-400 mt-2">Uploading main image...</div>}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Additional Images Gallery</label>
+              <div className="flex flex-col space-y-3">
+                <input 
+                  type="file" 
+                  multiple
+                  onChange={uploadMultipleFilesHandler}
+                  className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-600/20 file:text-emerald-400 hover:file:bg-emerald-600/30 transition-all cursor-pointer"
+                />
+                {loadingMultipleUpload && <div className="text-sm text-emerald-400 mt-2">Uploading gallery images...</div>}
+                
+                {images && images.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-4">
+                    {images.map((img, index) => (
+                      <div key={index} className="relative group rounded-lg overflow-hidden border border-slate-700 bg-slate-900">
+                        <img src={img} alt={`Gallery ${index}`} className="w-full h-24 object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
