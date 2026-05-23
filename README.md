@@ -182,3 +182,9 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Created `ProductEditScreen.jsx` UI to allow admins to edit product details
 - [x] Integrated image upload functionality to send files to the backend `/api/upload` endpoint
 - [x] Registered `/admin/product/:id/edit` route in `main.jsx`
+
+### Day 29
+- [x] Added `getUsers` and `deleteUser` endpoints to `usersApiSlice.js`
+- [x] Created `UserListScreen.jsx` for admins to view and manage all users
+- [x] Implemented delete user functionality with a confirmation prompt
+- [x] Registered `/admin/userlist` route in `main.jsx`
