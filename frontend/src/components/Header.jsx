@@ -109,18 +109,21 @@ const Header = () => {
                 </button>
                 
                 {adminDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-lg py-2 border border-slate-100 dark:border-slate-700">
-                    <Link to="/admin/dashboard" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl py-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50 border border-slate-100 dark:border-slate-700">
+                    <Link to="/admin/dashboard" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
                       Dashboard
                     </Link>
-                    <Link to="/admin/productlist" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
+                    <Link to="/admin/productlist" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
                       Products
                     </Link>
-                    <Link to="/admin/userlist" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
+                    <Link to="/admin/userlist" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
                       Users
                     </Link>
-                    <Link to="/admin/orderlist" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
+                    <Link to="/admin/orderlist" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
                       Orders
+                    </Link>
+                    <Link to="/admin/chat" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary transition-colors" onClick={() => setAdminDropdownOpen(false)}>
+                      Live Chat
                     </Link>
                   </div>
                 )}

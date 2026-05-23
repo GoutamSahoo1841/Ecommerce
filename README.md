@@ -284,3 +284,8 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Established `/api/products/:id/related` endpoint to strictly return items sharing the exact same category while explicitly excluding the current product
 - [x] Built an intelligent "You Might Also Like" responsive grid at the bottom of the `ProductScreen` to drive seamless cross-selling
 
+### Day 57
+- [x] Transformed the backend `server.js` into a real-time event bus utilizing `socket.io` to track and manage bi-directional communication channels
+- [x] Engineered a beautifully animated, globally available `<ChatBox />` floating widget in React for real-time customer support
+- [x] Developed a dedicated `/admin/chat` Admin Dashboard that streams active user sessions instantly and enables targeted 1-on-1 socket messaging
+

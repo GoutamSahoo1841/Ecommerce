@@ -29,6 +29,7 @@ import ProductListScreen from './screens/admin/ProductListScreen.jsx';
 import ProductEditScreen from './screens/admin/ProductEditScreen.jsx';
 import UserListScreen from './screens/admin/UserListScreen.jsx';
 import UserEditScreen from './screens/admin/UserEditScreen.jsx';
+import AdminChatScreen from './screens/admin/AdminChatScreen.jsx';
 import DashboardScreen from './screens/admin/DashboardScreen.jsx';
 
 const router = createBrowserRouter(
@@ -61,6 +62,7 @@ const router = createBrowserRouter(
         <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
         <Route path="/admin/userlist" element={<UserListScreen />} />
         <Route path="/admin/user/:id/edit" element={<UserEditScreen />} />
+        <Route path="/admin/chat" element={<AdminChatScreen />} />
       </Route>
     </Route>
   )

@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { io } from 'socket.io-client';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ChatBox from './components/ChatBox';
 
 const App = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -48,11 +49,14 @@ const App = () => {
       <Header />
       <main className="flex-grow pt-28 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Outlet />
+          <main className="py-8 min-h-[80vh]">
+            <Outlet />
+          </main>
         </div>
       </main>
       <Footer />
-      <ToastContainer />
+      <ChatBox />
+      <ToastContainer position="bottom-right" theme="colored" />
     </div>
   );
 };
