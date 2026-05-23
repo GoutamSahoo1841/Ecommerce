@@ -6,6 +6,7 @@ import {
   useCreateProductReviewMutation 
 } from '../slices/productsApiSlice';
 import { addToCart } from '../slices/cartSlice';
+import { addToWishlist, removeFromWishlist } from '../slices/wishlistSlice';
 import Meta from '../components/Meta';
 
 const ProductScreen = () => {
@@ -22,6 +23,17 @@ const ProductScreen = () => {
   const [createProductReview, { isLoading: loadingProductReview }] = useCreateProductReviewMutation();
 
   const { userInfo } = useSelector((state) => state.auth);
+  const { wishlistItems } = useSelector((state) => state.wishlist);
+
+  const existInWishlist = wishlistItems.find((x) => x._id === product?._id);
+
+  const toggleWishlistHandler = () => {
+    if (existInWishlist) {
+      dispatch(removeFromWishlist(product._id));
+    } else {
+      dispatch(addToWishlist(product));
+    }
+  };
 
   const addToCartHandler = () => {
     dispatch(addToCart({ ...product, qty }));
@@ -85,11 +97,22 @@ const ProductScreen = () => {
         </div>
 
         {/* Product Details */}
-        <div className="lg:col-span-1 flex flex-col justify-center">
+        <div className="lg:col-span-1 flex flex-col justify-center relative">
           <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">{product.brand}</p>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight">
-            {product.name}
-          </h1>
+          <div className="flex justify-between items-start">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight pr-12">
+              {product.name}
+            </h1>
+            <button 
+              onClick={toggleWishlistHandler}
+              className="absolute top-0 right-0 p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-full transition-colors"
+              title={existInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+            >
+              <svg className="w-8 h-8" fill={existInWishlist ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
+          </div>
           
           <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
             <div className="flex text-yellow-400">

@@ -226,3 +226,10 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Added `getDashboardData` to the `ordersApiSlice.js`
 - [x] Developed the `DashboardScreen.jsx` with summary cards, a Sales History Line Chart, and a Product Categories Pie Chart
 - [x] Registered the `/admin/dashboard` protected route and added a quick-link inside the Admin dropdown
+
+### Day 35
+- [x] Created `wishlistSlice.js` utilizing Redux Toolkit to manage wishlist state globally
+- [x] Implemented `localStorage` persistence so users retain their saved items across sessions
+- [x] Upgraded `ProductScreen.jsx` with a dynamic, toggleable heart icon for adding/removing items
+- [x] Built `WishlistScreen.jsx` to render saved items in a clean grid, complete with "Add to Cart" integration
+- [x] Registered the `/wishlist` route and added a dynamic Wishlist badge to the navigation `Header.jsx`
