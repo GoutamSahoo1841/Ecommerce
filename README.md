@@ -269,7 +269,7 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Overhauled the Redux Toolkit cart logic to dynamically compute price adjustments against running subtotals before calculating taxes
 - [x] Transformed `CartScreen.jsx` UI to support a real-time promo code input with instantaneous visual feedback via `react-toastify`
 
-### Day 53
+### Day 41
 - [x] Installed `cloudinary` and `multer-storage-cloudinary` to scale backend storage
 - [x] Refactored `uploadRoutes.js` to automatically intercept Multer streams and pipe them to the Cloudinary CDN
 - [x] Configured Cloudinary SDK to process both single and batch image uploads seamlessly
