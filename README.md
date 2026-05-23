@@ -263,7 +263,7 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Enhanced `ProductEditScreen.jsx` UI to allow Admins to natively drag-and-drop multiple images into an organized gallery
 - [x] Transformed `ProductScreen.jsx` to render an interactive thumbnail gallery allowing users to instantly swap product images
 
-### Day 46
+### Day 40
 - [x] Engineered a dynamic `Coupon` schema natively bound to the MongoDB database
 - [x] Established robust coupon management APIs complete with discount validation and expiration tracking
 - [x] Overhauled the Redux Toolkit cart logic to dynamically compute price adjustments against running subtotals before calculating taxes
