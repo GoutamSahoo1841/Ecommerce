@@ -202,3 +202,12 @@ Welcome to my 60-Day eCommerce Project! This repository tracks my daily progress
 - [x] Updated `HomeScreen.jsx` to parse search keywords and page numbers from the URL and pass them to the query
 - [x] Integrated pagination into the admin `ProductListScreen.jsx`
 - [x] Registered all new search and pagination routes in `main.jsx`
+
+### Day 32
+- [x] Installed `react-helmet-async` for managing document head metadata
+- [x] Created `Meta.jsx` component for dynamic SEO titles, descriptions, and keywords
+- [x] Wrapped the application in `<HelmetProvider>` within `main.jsx`
+- [x] Created `ProductCarousel.jsx` component to dynamically feature top-rated products
+- [x] Added `getTopProducts` query and `createProductReview` mutation to `productsApiSlice.js`
+- [x] Integrated the `ProductCarousel` into the `HomeScreen.jsx`
+- [x] Implemented a Customer Reviews section with a secure submission form in `ProductScreen.jsx`

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { useGetProductDetailsQuery } from '../slices/productsApiSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { 
+  useGetProductDetailsQuery,
+  useCreateProductReviewMutation 
+} from '../slices/productsApiSlice';
+import { addToCart } from '../slices/cartSlice';
+import Meta from '../components/Meta';
 import { addToCart } from '../slices/cartSlice';
 
 const ProductScreen = () => {
@@ -10,12 +15,35 @@ const ProductScreen = () => {
   const navigate = useNavigate();
 
   const [qty, setQty] = useState(1);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
 
-  const { data: product, isLoading, error } = useGetProductDetailsQuery(productId);
+  const { data: product, isLoading, error, refetch } = useGetProductDetailsQuery(productId);
+
+  const [createProductReview, { isLoading: loadingProductReview }] = useCreateProductReviewMutation();
+
+  const { userInfo } = useSelector((state) => state.auth);
 
   const addToCartHandler = () => {
     dispatch(addToCart({ ...product, qty }));
     navigate('/cart');
+  };
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      await createProductReview({
+        productId,
+        rating,
+        comment,
+      }).unwrap();
+      refetch();
+      alert('Review Submitted');
+      setRating(0);
+      setComment('');
+    } catch (err) {
+      alert(err?.data?.message || err.error);
+    }
   };
 
   if (isLoading) {
@@ -45,6 +73,7 @@ const ProductScreen = () => {
 
   return (
     <div>
+      <Meta title={product.name} description={product.description} />
       <Link to="/" className="inline-flex items-center gap-2 mb-8 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
         Go Back
@@ -115,6 +144,79 @@ const ProductScreen = () => {
             >
               Add To Cart
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mt-16">
+        <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-8">Reviews</h2>
+        {product.reviews.length === 0 && (
+          <div className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 p-6 rounded-2xl">
+            No Reviews
+          </div>
+        )}
+        <div className="space-y-6 mt-6">
+          {product.reviews.map((review) => (
+            <div key={review._id} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+              <div className="flex items-center justify-between mb-4">
+                <strong className="text-lg text-slate-900 dark:text-white">{review.name}</strong>
+                <div className="flex text-yellow-400 text-sm">
+                  {'★'.repeat(review.rating)}
+                  {'☆'.repeat(5 - review.rating)}
+                </div>
+              </div>
+              <p className="text-sm text-slate-500 mb-4">{review.createdAt.substring(0, 10)}</p>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{review.comment}</p>
+            </div>
+          ))}
+
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 mt-8">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Write a Customer Review</h2>
+            {loadingProductReview && (
+              <div className="flex justify-center items-center py-4 mb-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+              </div>
+            )}
+            {userInfo ? (
+              <form onSubmit={submitHandler} className="space-y-6">
+                <div>
+                  <label htmlFor="rating" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Rating</label>
+                  <select 
+                    id="rating"
+                    required
+                    value={rating} 
+                    onChange={(e) => setRating(Number(e.target.value))}
+                    className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+                  >
+                    <option value="">Select...</option>
+                    <option value="1">1 - Poor</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="3">3 - Good</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="5">5 - Excellent</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="comment" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Comment</label>
+                  <textarea 
+                    id="comment"
+                    required
+                    row="3" 
+                    value={comment} 
+                    onChange={(e) => setComment(e.target.value)}
+                    className="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+                  ></textarea>
+                </div>
+                <button type="submit" disabled={loadingProductReview} className="btn-primary py-3 px-8">
+                  Submit
+                </button>
+              </form>
+            ) : (
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 p-6 rounded-2xl">
+                Please <Link to="/login" className="font-bold hover:underline">sign in</Link> to write a review
+              </div>
+            )}
           </div>
         </div>
       </div>
