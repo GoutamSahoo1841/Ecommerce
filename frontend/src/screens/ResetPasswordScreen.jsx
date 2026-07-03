@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { useResetPasswordMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
 import FormContainer from '../components/FormContainer';
+import { Button } from '../components/ui/Button';
 
 const ResetPasswordScreen = () => {
   const [password, setPassword] = useState('');
@@ -29,59 +30,60 @@ const ResetPasswordScreen = () => {
       toast.success('Password reset successful');
       navigate('/');
     } catch (err) {
-      toast.error(err?.data?.message || err.error);
+      toast.error(err?.data?.message || err.error || 'Failed to reset password');
     }
   };
 
   return (
     <FormContainer>
-      <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 w-full max-w-md mx-auto">
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-6 text-center">Reset Password</h1>
-        
-        <form onSubmit={submitHandler} className="space-y-6">
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              New Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-              placeholder="Enter new password"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-              placeholder="Confirm new password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full btn-primary py-3 flex justify-center items-center"
-          >
-            {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-            ) : (
-              'Reset Password'
-            )}
-          </button>
-        </form>
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-extrabold text-foreground mb-2">Reset Password</h1>
+        <p className="text-sm text-muted-foreground">Enter and confirm your new password below.</p>
       </div>
+
+      <form onSubmit={submitHandler} className="space-y-6">
+        <div className="space-y-2">
+          <label htmlFor="password" className="block text-xs font-semibold text-muted-foreground">
+            New Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
+            placeholder="Enter new password"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="confirmPassword" className="block text-xs font-semibold text-muted-foreground">
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
+            placeholder="Confirm new password"
+          />
+        </div>
+
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="w-full shadow-md text-white font-bold h-11"
+        >
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+          ) : (
+            'Reset Password'
+          )}
+        </Button>
+      </form>
     </FormContainer>
   );
 };

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import FormContainer from '../components/FormContainer';
 import { useLoginMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
+import { Button } from '../components/ui/Button';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -33,65 +34,65 @@ const LoginScreen = () => {
       dispatch(setCredentials({ ...res }));
       navigate(redirect);
     } catch (err) {
-      // Error handled by RTK Query hook
+      // Handled by mutation hook
     }
   };
 
   return (
     <FormContainer>
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">Welcome Back</h1>
-        <p className="text-slate-500 dark:text-slate-400">Sign in to your account to continue</p>
+        <h1 className="text-3xl font-extrabold text-foreground mb-2">Welcome Back</h1>
+        <p className="text-sm text-muted-foreground">Sign in to your account to continue</p>
       </div>
 
       {error && (
-        <div className="mb-6 bg-red-50 dark:bg-red-900/20 text-red-500 p-4 rounded-xl border border-red-200 dark:border-red-800 text-sm text-center">
+        <div className="mb-6 bg-destructive/10 text-destructive p-4 rounded-xl border border-destructive/20 text-xs text-center">
           {error?.data?.message || error.error || 'Invalid credentials'}
         </div>
       )}
 
       <form onSubmit={submitHandler} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-muted-foreground">Email Address</label>
           <input
             type="email"
             placeholder="Enter email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
+            className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
             required
           />
         </div>
 
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
-            <Link to="/forgotpassword" className="text-sm text-primary hover:underline">Forgot password?</Link>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <label className="block text-xs font-semibold text-muted-foreground">Password</label>
+            <Link to="/forgotpassword" className="text-xs text-primary hover:underline font-semibold">Forgot password?</Link>
           </div>
           <input
             type="password"
             placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
+            className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
             required
           />
         </div>
 
-        <button
+        <Button
           type="submit"
           disabled={isLoading}
-          className="w-full btn-primary py-3.5 text-lg flex justify-center items-center gap-2"
+          className="w-full shadow-md text-white font-bold h-11"
         >
           {isLoading ? (
-            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white"></div>
+            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
           ) : (
             'Sign In'
           )}
-        </button>
+        </Button>
       </form>
 
-      <div className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
+      <div className="mt-8 text-center text-xs text-muted-foreground">
         New Customer?{' '}
         <Link to={redirect ? `/register?redirect=${redirect}` : '/register'} className="text-primary font-bold hover:underline">
           Register Here

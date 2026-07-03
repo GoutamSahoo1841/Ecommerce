@@ -25,8 +25,13 @@ const getProducts = asyncHandler(async (req, res) => {
       $lte: Number(req.query.price.split('-')[1]) 
     } 
   } : {};
+  
+  const deals = req.query.deals === 'true' ? {
+    originalPrice: { $gt: 0 },
+    $expr: { $gt: ["$originalPrice", "$price"] }
+  } : {};
 
-  const filter = { ...keyword, ...category, ...rating, ...price };
+  const filter = { ...keyword, ...category, ...rating, ...price, ...deals };
 
   const count = await Product.countDocuments(filter);
   const products = await Product.find(filter)
@@ -65,6 +70,9 @@ const createProduct = asyncHandler(async (req, res) => {
     countInStock: 0,
     numReviews: 0,
     description: 'Sample description',
+    badge: '',
+    colors: [],
+    sizes: [],
   });
 
   const createdProduct = await product.save();
@@ -78,12 +86,16 @@ const updateProduct = asyncHandler(async (req, res) => {
   const {
     name,
     price,
+    originalPrice,
     description,
     image,
     images,
     brand,
     category,
     countInStock,
+    badge,
+    colors,
+    sizes,
   } = req.body;
 
   const product = await Product.findById(req.params.id);
@@ -91,6 +103,7 @@ const updateProduct = asyncHandler(async (req, res) => {
   if (product) {
     product.name = name || product.name;
     product.price = price || product.price;
+    product.originalPrice = originalPrice !== undefined ? originalPrice : product.originalPrice;
     product.description = description || product.description;
     product.image = image || product.image;
     if (images) {
@@ -99,6 +112,13 @@ const updateProduct = asyncHandler(async (req, res) => {
     product.brand = brand || product.brand;
     product.category = category || product.category;
     product.countInStock = countInStock || product.countInStock;
+    product.badge = badge !== undefined ? badge : product.badge;
+    if (colors) {
+      product.colors = colors;
+    }
+    if (sizes) {
+      product.sizes = sizes;
+    }
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);

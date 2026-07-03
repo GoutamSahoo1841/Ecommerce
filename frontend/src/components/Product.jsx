@@ -1,36 +1,152 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { motion } from 'framer-motion';
+import { Heart, ShoppingBag, Star } from 'lucide-react';
+import { addToCart } from '../slices/cartSlice';
+import { addToWishlist, removeFromWishlist } from '../slices/wishlistSlice';
+import { Button } from './ui/Button';
+import { Badge } from './ui/Badge';
+import { toast } from 'react-toastify';
 
-const Product = ({ product }) => {
+const Product = ({ product, index = 0 }) => {
+  const dispatch = useDispatch();
+  const { wishlistItems } = useSelector((state) => state.wishlist);
+  
+  const isWishlisted = wishlistItems.some((item) => item._id === product._id);
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(addToCart({ ...product, qty: 1 }));
+    toast.success(`Added ${product.name} to cart`);
+  };
+
+  const handleToggleWishlist = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isWishlisted) {
+      dispatch(removeFromWishlist(product._id));
+      toast.info('Removed from wishlist');
+    } else {
+      dispatch(addToWishlist(product));
+      toast.success('Added to wishlist');
+    }
+  };
+
+  // Calculate percentage off
+  const hasDiscount = product.originalPrice && product.originalPrice > product.price;
+  const discountPercentage = hasDiscount 
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+    : 0;
+
+  // Define card animation
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
-    <div className="group relative bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-700">
+    <motion.div
+      variants={cardVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-50px' }}
+      transition={{ delay: index * 0.05, duration: 0.4 }}
+    >
       <Link to={`/product/${product._id}`}>
-        <div className="relative aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-900">
-          <img src={product.image} alt={product.name} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-          <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-3 py-1 rounded-full text-sm font-semibold text-primary shadow-sm">
-            ${product.price}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -4 }}
+          className="group relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-sm transition-all hover:shadow-lg duration-300"
+        >
+          {/* Image container */}
+          <div className="relative aspect-square overflow-hidden bg-secondary/30">
+            <img 
+              src={product.image} 
+              alt={product.name} 
+              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" 
+            />
+
+            {/* Badges */}
+            <div className="absolute left-3 top-3 flex flex-col gap-2 z-10">
+              {product.badge ? (
+                <Badge 
+                  variant="default" 
+                  className={`shadow-sm font-semibold border-none py-1 text-white ${
+                    product.badge.toLowerCase() === 'sale' ? 'bg-rose-500' :
+                    product.badge.toLowerCase() === 'new' ? 'bg-emerald-500' : 'bg-indigo-600'
+                  }`}
+                >
+                  {product.badge}
+                </Badge>
+              ) : (
+                product.rating >= 4.8 && (
+                  <Badge variant="default" className="shadow-sm font-semibold bg-indigo-600 text-white border-none py-1">
+                    Best Seller
+                  </Badge>
+                )
+              )}
+              {hasDiscount && (!product.badge || product.badge.toLowerCase() !== 'sale') && (
+                <Badge variant="destructive" className="shadow-sm font-semibold border-none py-1 bg-rose-500 text-white">
+                  -{discountPercentage}%
+                </Badge>
+              )}
+            </div>
+
+            {/* Wishlist Toggle Button */}
+            <button
+              onClick={handleToggleWishlist}
+              className={`absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 dark:bg-card/85 backdrop-blur-sm shadow-sm transition-colors focus:outline-none ${
+                isWishlisted ? 'text-rose-500' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Heart className={`h-4.5 w-4.5 ${isWishlisted ? 'fill-current' : ''}`} />
+            </button>
+
+            {/* Quick Add To Cart Slide-up Button */}
+            <div
+              className="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-all z-10"
+            >
+              <Button
+                onClick={handleAddToCart}
+                disabled={product.countInStock === 0}
+                className="w-full shadow-lg rounded-xl text-xs py-2 bg-primary hover:bg-primary/90 text-white font-semibold flex items-center justify-center gap-1.5 h-9"
+              >
+                <ShoppingBag className="h-3.5 w-3.5" />
+                {product.countInStock > 0 ? 'Add to Cart' : 'Out of Stock'}
+              </Button>
+            </div>
           </div>
-        </div>
+
+          {/* Details */}
+          <div className="p-4">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              {product.category}
+            </span>
+            <h3 className="mt-1 line-clamp-1 font-semibold text-foreground hover:text-primary transition-colors text-sm sm:text-base">
+              {product.name}
+            </h3>
+            
+            {/* Ratings */}
+            <div className="mt-2 flex items-center gap-1">
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              <span className="text-xs font-semibold text-foreground">{product.rating}</span>
+              <span className="text-xs text-muted-foreground">({product.numReviews})</span>
+            </div>
+
+            {/* Pricing details */}
+            <div className="mt-2 flex items-baseline gap-2">
+              <span className="text-base sm:text-lg font-bold text-foreground">${product.price}</span>
+              {hasDiscount && (
+                <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                  ${product.originalPrice}
+                </span>
+              )}
+            </div>
+          </div>
+        </motion.div>
       </Link>
-      <div className="p-6">
-        <Link to={`/product/${product._id}`}>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 line-clamp-1 group-hover:text-primary transition-colors">
-            {product.name}
-          </h3>
-        </Link>
-        <div className="flex items-center mb-4">
-          <div className="flex text-yellow-400 text-sm">
-            {'★'.repeat(Math.floor(product.rating))}
-            {'☆'.repeat(5 - Math.floor(product.rating))}
-          </div>
-          <span className="text-xs text-slate-500 ml-2">({product.numReviews} reviews)</span>
-        </div>
-        <button className="w-full btn-primary py-3 flex items-center justify-center gap-2">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-          Add to Cart
-        </button>
-      </div>
-    </div>
+    </motion.div>
   );
 };
 

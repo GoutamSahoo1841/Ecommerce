@@ -22,6 +22,8 @@ import ShippingScreen from './screens/ShippingScreen.jsx';
 import PaymentScreen from './screens/PaymentScreen.jsx';
 import PlaceOrderScreen from './screens/PlaceOrderScreen.jsx';
 import OrderScreen from './screens/OrderScreen.jsx';
+import CategoriesScreen from './screens/CategoriesScreen.jsx';
+import DealsScreen from './screens/DealsScreen.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import OrderListScreen from './screens/admin/OrderListScreen.jsx';
@@ -38,6 +40,8 @@ const router = createBrowserRouter(
       <Route index={true} path="/" element={<HomeScreen />} />
       <Route path="/page/:pageNumber" element={<HomeScreen />} />
       <Route path="/search" element={<SearchScreen />} />
+      <Route path="/categories" element={<CategoriesScreen />} />
+      <Route path="/deals" element={<DealsScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
       <Route path="/cart" element={<CartScreen />} />
       <Route path="/wishlist" element={<WishlistScreen />} />

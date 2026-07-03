@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useGetTopProductsQuery } from '../slices/productsApiSlice';
+import { ArrowRight, Sparkles } from 'lucide-react';
+import { Button } from './ui/Button';
+import { Badge } from './ui/Badge';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ProductCarousel = () => {
   const { data: products, isLoading, error } = useGetTopProductsQuery();
@@ -13,19 +17,23 @@ const ProductCarousel = () => {
       setCurrentIndex((prevIndex) => 
         prevIndex === products.length - 1 ? 0 : prevIndex + 1
       );
-    }, 5000);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, [products]);
 
   if (isLoading) {
-    return null;
+    return (
+      <div className="w-full rounded-3xl h-[300px] md:h-[400px] bg-card border border-border/50 animate-pulse flex items-center justify-center text-muted-foreground text-sm">
+        Loading Featured Collection...
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 text-red-500 p-4 rounded-xl border border-red-200 dark:border-red-800 mb-8">
-        {error?.data?.message || error.error || 'An error occurred'}
+      <div className="bg-destructive/10 text-destructive p-4 rounded-2xl border border-destructive/20 mb-8 text-sm">
+        {error?.data?.message || error.error || 'An error occurred loading top products'}
       </div>
     );
   }
@@ -37,42 +45,78 @@ const ProductCarousel = () => {
   const currentProduct = products[currentIndex];
 
   return (
-    <div className="relative w-full overflow-hidden rounded-3xl bg-slate-900 shadow-2xl mb-12 h-[300px] md:h-[400px] lg:h-[500px] group">
-      {products.map((product, index) => (
-        <div
-          key={product._id}
-          className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-            index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-          }`}
+    <div className="relative w-full overflow-hidden rounded-3xl bg-gradient-to-br from-card to-secondary/30 border border-border/50 shadow-lg mb-12 h-[350px] md:h-[450px]">
+      {/* Background radial highlights */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentIndex}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.4 }}
+          className="w-full h-full grid md:grid-cols-2 items-center p-8 md:p-12 lg:p-16 gap-8"
         >
-          <Link to={`/product/${product._id}`} className="block w-full h-full">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-cover opacity-60 group-hover:opacity-50 transition-opacity duration-500"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-8 md:p-12 lg:p-16 w-full md:w-2/3">
-              <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 drop-shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                {product.name}
-              </h2>
-              <p className="text-xl md:text-2xl font-bold text-primary mb-6 drop-shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                ${product.price}
-              </p>
+          {/* Left Text details */}
+          <div className="flex flex-col items-start justify-center text-left">
+            <Badge variant="secondary" className="mb-4 flex items-center gap-1 bg-primary/10 text-primary border-none py-1">
+              <Sparkles className="h-3 w-3" />
+              Featured Offer
+            </Badge>
+            <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight line-clamp-2 leading-tight">
+              {currentProduct.name}
+            </h2>
+            <p className="mt-4 text-muted-foreground text-sm md:text-base line-clamp-2 max-w-md">
+              {currentProduct.description}
+            </p>
+            <div className="mt-6 flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-foreground">${currentProduct.price}</span>
+              {currentProduct.originalPrice && (
+                <span className="text-sm text-muted-foreground line-through">${currentProduct.originalPrice}</span>
+              )}
             </div>
-          </Link>
-        </div>
-      ))}
+            <div className="mt-6">
+              <Button size="lg" asChild className="rounded-xl shadow-md">
+                <Link to={`/product/${currentProduct._id}`} className="flex items-center gap-1 text-white">
+                  Shop Now
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Right Product Image showcase */}
+          <div className="hidden md:flex justify-center items-center relative h-full">
+            <motion.div
+              initial={{ scale: 0.9, rotate: -2 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ duration: 0.5 }}
+              className="relative aspect-square max-w-[280px] lg:max-w-[320px] w-full overflow-hidden rounded-2xl bg-secondary/20 shadow-md group-hover:shadow-xl transition-all"
+            >
+              <img
+                src={currentProduct.image}
+                alt={currentProduct.name}
+                className="w-full h-full object-cover select-none"
+              />
+            </motion.div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
       
-      <div className="absolute bottom-6 right-6 md:right-12 z-20 flex space-x-3">
+      {/* Navigation Indicators */}
+      <div className="absolute bottom-6 left-8 md:left-12 lg:left-16 z-20 flex space-x-2">
         {products.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
               index === currentIndex 
-                ? 'bg-primary w-8' 
-                : 'bg-white/50 hover:bg-white/80'
+                ? 'bg-primary w-6' 
+                : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />

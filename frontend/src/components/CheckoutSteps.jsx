@@ -1,63 +1,55 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Check } from 'lucide-react';
 
 const CheckoutSteps = ({ step1, step2, step3, step4 }) => {
+  const steps = [
+    { name: 'Sign In', active: step1, link: '/login' },
+    { name: 'Shipping', active: step2, link: '/shipping' },
+    { name: 'Payment', active: step3, link: '/payment' },
+    { name: 'Place Order', active: step4, link: '/placeorder' },
+  ];
+
   return (
-    <nav className="flex justify-center mb-8">
-      <ul className="flex items-center space-x-2 sm:space-x-4">
-        {/* Step 1: Sign In */}
-        <li className="flex items-center">
-          {step1 ? (
-            <Link to="/login" className="text-primary font-bold hover:underline">
-              Sign In
-            </Link>
-          ) : (
-            <span className="text-slate-400 dark:text-slate-500 cursor-not-allowed">Sign In</span>
-          )}
-        </li>
-        <li className="text-slate-300 dark:text-slate-600">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-        </li>
+    <nav className="flex justify-center mb-12">
+      <div className="flex items-center w-full max-w-xl">
+        {steps.map((step, idx) => {
+          const isLast = idx === steps.length - 1;
+          return (
+            <React.Fragment key={step.name}>
+              {/* Step circle */}
+              <div className="flex flex-col items-center relative flex-1">
+                {step.active ? (
+                  <Link 
+                    to={step.link} 
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white shadow-md shadow-primary/20 hover:bg-primary/95 transition-all text-xs font-bold"
+                  >
+                    {idx + 1}
+                  </Link>
+                ) : (
+                  <div 
+                    className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-card text-muted-foreground text-xs font-bold cursor-not-allowed"
+                  >
+                    {idx + 1}
+                  </div>
+                )}
+                <span className={`absolute top-11 text-xs font-medium whitespace-nowrap ${
+                  step.active ? 'text-foreground font-bold' : 'text-muted-foreground'
+                }`}>
+                  {step.name}
+                </span>
+              </div>
 
-        {/* Step 2: Shipping */}
-        <li className="flex items-center">
-          {step2 ? (
-            <Link to="/shipping" className="text-primary font-bold hover:underline">
-              Shipping
-            </Link>
-          ) : (
-            <span className="text-slate-400 dark:text-slate-500 cursor-not-allowed">Shipping</span>
-          )}
-        </li>
-        <li className="text-slate-300 dark:text-slate-600">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-        </li>
-
-        {/* Step 3: Payment */}
-        <li className="flex items-center">
-          {step3 ? (
-            <Link to="/payment" className="text-primary font-bold hover:underline">
-              Payment
-            </Link>
-          ) : (
-            <span className="text-slate-400 dark:text-slate-500 cursor-not-allowed">Payment</span>
-          )}
-        </li>
-        <li className="text-slate-300 dark:text-slate-600">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-        </li>
-
-        {/* Step 4: Place Order */}
-        <li className="flex items-center">
-          {step4 ? (
-            <Link to="/placeorder" className="text-primary font-bold hover:underline">
-              Place Order
-            </Link>
-          ) : (
-            <span className="text-slate-400 dark:text-slate-500 cursor-not-allowed">Place Order</span>
-          )}
-        </li>
-      </ul>
+              {/* Connecting line */}
+              {!isLast && (
+                <div className={`h-0.5 flex-1 -mt-5 transition-all duration-300 ${
+                  steps[idx + 1].active ? 'bg-primary' : 'bg-border'
+                }`} />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
     </nav>
   );
 };

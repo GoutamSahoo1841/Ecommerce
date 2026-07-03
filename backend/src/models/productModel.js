@@ -64,11 +64,27 @@ const productSchema = mongoose.Schema(
       required: true,
       default: 0,
     },
+    originalPrice: {
+      type: Number,
+    },
     countInStock: {
       type: Number,
       required: true,
       default: 0,
     },
+    badge: {
+      type: String,
+    },
+    colors: [
+      {
+        type: String,
+      }
+    ],
+    sizes: [
+      {
+        type: String,
+      }
+    ],
   },
   {
     timestamps: true,

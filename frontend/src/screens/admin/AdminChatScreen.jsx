@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
+import { MessageSquare, Send, User } from 'lucide-react';
+import { Button } from '../../components/ui/Button';
 
 const ENDPOINT = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '/';
 
@@ -38,7 +40,6 @@ const AdminChatScreen = () => {
       });
 
       sk.on('message', (data) => {
-        // data = { socketId, msg: {body, name, isAdmin} }
         setMessages((prev) => [...prev, data]);
       });
 
@@ -74,18 +75,21 @@ const AdminChatScreen = () => {
   const currentMessages = messages.filter(m => m.socketId === selectedUser?.socketId).map(m => m.msg);
 
   return (
-    <div className="max-w-7xl mx-auto h-[70vh] flex gap-6 mt-8">
+    <div className="max-w-7xl mx-auto h-[75vh] flex gap-6 mt-8">
       {/* Sidebar: Active Users */}
-      <div className="w-1/3 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
-        <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+      <div className="w-1/3 bg-card border border-border/50 rounded-3xl overflow-hidden flex flex-col shadow-sm">
+        <div className="p-6 border-b border-border/50 bg-secondary/30">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse" />
             Active Chats
           </h2>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-hide">
           {activeUsers.length === 0 ? (
-            <div className="text-slate-500 dark:text-slate-400 text-center mt-10">No active users</div>
+            <div className="text-muted-foreground text-center mt-10 text-sm">
+              <MessageSquare className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
+              No active customer chats
+            </div>
           ) : (
             activeUsers.map((user) => (
               <button
@@ -94,11 +98,14 @@ const AdminChatScreen = () => {
                 className={`w-full text-left p-4 rounded-2xl transition-all border ${
                   selectedUser?.socketId === user.socketId
                     ? 'bg-primary/10 border-primary text-primary'
-                    : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    : 'bg-card border-border/40 hover:bg-secondary/50 text-foreground'
                 }`}
               >
-                <div className="font-bold">{user.name}</div>
-                <div className="text-xs opacity-70 truncate mt-1">ID: {user._id}</div>
+                <div className="font-bold text-sm flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  {user.name}
+                </div>
+                <div className="text-[10px] text-muted-foreground truncate mt-1">ID: {user._id}</div>
               </button>
             ))
           )}
@@ -106,26 +113,26 @@ const AdminChatScreen = () => {
       </div>
 
       {/* Main Chat Area */}
-      <div className="w-2/3 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col">
+      <div className="w-2/3 bg-card border border-border/50 rounded-3xl overflow-hidden flex flex-col shadow-sm">
         {selectedUser ? (
           <>
-            <div className="p-6 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                Chatting with {selectedUser.name}
+            <div className="p-6 border-b border-border/50 bg-secondary/30">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                Chatting with <span className="text-primary">{selectedUser.name}</span>
               </h2>
             </div>
             
-            <div className="flex-1 p-6 overflow-y-auto space-y-4 custom-scrollbar bg-slate-50/50 dark:bg-slate-900/20">
+            <div className="flex-1 p-6 overflow-y-auto space-y-4 scrollbar-hide bg-secondary/10">
               {currentMessages.length === 0 ? (
-                <div className="text-center text-slate-500 mt-10">No messages yet.</div>
+                <div className="text-center text-muted-foreground mt-10 text-sm">No messages yet. Start chatting below!</div>
               ) : (
                 currentMessages.map((msg, idx) => (
                   <div key={idx} className={`flex flex-col ${msg.isAdmin ? 'items-end' : 'items-start'}`}>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 mb-1">{msg.name}</span>
-                    <div className={`px-4 py-3 rounded-2xl max-w-[70%] ${
+                    <span className="text-[10px] text-muted-foreground mb-1 px-1">{msg.name}</span>
+                    <div className={`px-4 py-2.5 rounded-2xl max-w-[70%] text-sm shadow-sm ${
                       msg.isAdmin 
                         ? 'bg-primary text-white rounded-tr-sm' 
-                        : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-tl-sm'
+                        : 'bg-secondary text-foreground rounded-tl-sm'
                     }`}>
                       {msg.body}
                     </div>
@@ -135,23 +142,28 @@ const AdminChatScreen = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={submitHandler} className="p-4 border-t border-slate-100 dark:border-slate-700 flex gap-4">
+            <form onSubmit={submitHandler} className="p-4 border-t border-border/50 flex gap-3 bg-card">
               <input 
                 type="text" 
                 value={messageBody}
                 onChange={(e) => setMessageBody(e.target.value)}
                 placeholder={`Reply to ${selectedUser.name}...`}
-                className="flex-1 bg-slate-100 dark:bg-slate-700 border-none rounded-xl px-6 py-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 outline-none text-lg"
+                className="flex-1 bg-secondary border-none rounded-xl px-4 py-3 text-foreground focus:ring-2 focus:ring-primary/30 outline-none text-sm"
               />
-              <button type="submit" disabled={!messageBody.trim()} className="bg-primary text-white px-8 rounded-xl font-bold hover:bg-primary-dark transition-colors disabled:opacity-50">
+              <Button 
+                type="submit" 
+                disabled={!messageBody.trim()} 
+                className="px-6 rounded-xl font-semibold shadow-sm h-11"
+              >
+                <Send className="h-4 w-4 mr-2" />
                 Send
-              </button>
+              </Button>
             </form>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
-            <svg className="w-24 h-24 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-            <p className="text-xl font-medium">Select a user to start chatting</p>
+          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground/60 p-12">
+            <MessageSquare className="w-16 h-16 mb-4 text-muted-foreground/20" />
+            <p className="text-lg font-medium">Select an active chat room to get started</p>
           </div>
         )}
       </div>

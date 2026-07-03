@@ -1,0 +1,233 @@
+[
+  {
+    "name": "Nova Pro Wireless Headphones",
+    "image": "/images/product-headphones.png",
+    "images": [
+      "/images/product-headphones.png",
+      "/images/product-earbuds.png",
+      "/images/product-speaker.png"
+    ],
+    "description": "Premium wireless headphones with active noise cancellation, spatial audio, and 40-hour battery life. Experience sound like never before.",
+    "brand": "Nova",
+    "category": "Audio",
+    "price": 349,
+    "originalPrice": 449,
+    "countInStock": 10,
+    "rating": 4.9,
+    "numReviews": 28,
+    "badge": "Best Seller",
+    "colors": ["Midnight Black", "Silver", "Space Gray"],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Ultra Smart Watch Series X",
+    "image": "/images/product-smartwatch.png",
+    "images": [
+      "/images/product-smartwatch.png",
+      "/images/product-fitness-band.png"
+    ],
+    "description": "Advanced health monitoring, always-on display, and seamless connectivity. Your personal health companion on your wrist.",
+    "brand": "Ultra",
+    "category": "Wearables",
+    "price": 499,
+    "originalPrice": 599,
+    "countInStock": 7,
+    "rating": 4.8,
+    "numReviews": 19,
+    "badge": "New",
+    "colors": ["Graphite", "Gold", "Silver"],
+    "sizes": ["41mm", "45mm"],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Pro Laptop Stand Aluminum",
+    "image": "/images/product-laptop-stand.png",
+    "images": [
+      "/images/product-laptop-stand.png"
+    ],
+    "description": "Ergonomic aluminum laptop stand with adjustable height and angle. Perfect for your home office setup.",
+    "brand": "Nova",
+    "category": "Accessories",
+    "price": 129,
+    "originalPrice": null,
+    "countInStock": 5,
+    "rating": 4.7,
+    "numReviews": 8,
+    "badge": "",
+    "colors": ["Silver", "Space Gray"],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Wireless Charging Pad Pro",
+    "image": "/images/product-usb-hub.png",
+    "images": [
+      "/images/product-usb-hub.png"
+    ],
+    "description": "15W fast wireless charging with MagSafe compatibility. Charges your devices effortlessly.",
+    "brand": "Nova",
+    "category": "Accessories",
+    "price": 79,
+    "originalPrice": 99,
+    "countInStock": 12,
+    "rating": 4.6,
+    "numReviews": 12,
+    "badge": "Sale",
+    "colors": ["White", "Black"],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Studio Monitor Speakers",
+    "image": "/images/product-speaker.png",
+    "images": [
+      "/images/product-speaker.png"
+    ],
+    "description": "Professional-grade studio monitors with crystal-clear audio reproduction. Perfect for creators and audiophiles.",
+    "brand": "Nova",
+    "category": "Audio",
+    "price": 599,
+    "originalPrice": null,
+    "countInStock": 4,
+    "rating": 4.9,
+    "numReviews": 4,
+    "badge": "",
+    "colors": ["Matte Black", "White"],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Mechanical Keyboard Pro",
+    "image": "/images/product-keyboard.png",
+    "images": [
+      "/images/product-keyboard.png"
+    ],
+    "description": "Premium mechanical keyboard with hot-swappable switches, RGB backlighting, and wireless connectivity.",
+    "brand": "Nova",
+    "category": "Accessories",
+    "price": 199,
+    "originalPrice": 249,
+    "countInStock": 15,
+    "rating": 4.8,
+    "numReviews": 15,
+    "badge": "Popular",
+    "colors": ["Black", "White"],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Ultra HD Webcam 4K",
+    "image": "/images/product-webcam.png",
+    "images": [
+      "/images/product-webcam.png"
+    ],
+    "description": "Professional 4K webcam with auto-focus, low-light correction, and built-in privacy shutter.",
+    "brand": "Ultra",
+    "category": "Accessories",
+    "price": 179,
+    "originalPrice": null,
+    "countInStock": 8,
+    "rating": 4.5,
+    "numReviews": 9,
+    "badge": "",
+    "colors": [],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Portable SSD 2TB",
+    "image": "/images/product-ssd.png",
+    "images": [
+      "/images/product-ssd.png"
+    ],
+    "description": "Ultra-fast portable SSD with 2TB storage. Transfer speeds up to 2000MB/s.",
+    "brand": "Nova",
+    "category": "Storage",
+    "price": 249,
+    "originalPrice": 299,
+    "countInStock": 21,
+    "rating": 4.9,
+    "numReviews": 21,
+    "badge": "Top Rated",
+    "colors": [],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Noise Cancelling Earbuds",
+    "image": "/images/product-earbuds.png",
+    "images": [
+      "/images/product-earbuds.png"
+    ],
+    "description": "True wireless earbuds with active noise cancellation and transparency mode. 8 hours of listening.",
+    "brand": "Nova",
+    "category": "Audio",
+    "price": 199,
+    "originalPrice": null,
+    "countInStock": 34,
+    "rating": 4.7,
+    "numReviews": 34,
+    "badge": "",
+    "colors": ["White", "Black", "Navy"],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Smart Home Hub",
+    "image": "/images/product-smart-speaker.png",
+    "images": [
+      "/images/product-smart-speaker.png"
+    ],
+    "description": "Central hub for all your smart home devices. Control lights, thermostat, security, and more.",
+    "brand": "Ultra",
+    "category": "Smart Home",
+    "price": 149,
+    "originalPrice": null,
+    "countInStock": 0,
+    "rating": 4.6,
+    "numReviews": 18,
+    "badge": "Coming Soon",
+    "colors": [],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "Gaming Mouse Pro",
+    "image": "/images/product-gaming-mouse.png",
+    "images": [
+      "/images/product-gaming-mouse.png"
+    ],
+    "description": "High-precision gaming mouse with 25,000 DPI sensor, customizable buttons, and RGB lighting.",
+    "brand": "Logitech",
+    "category": "Gaming",
+    "price": 89,
+    "originalPrice": 119,
+    "countInStock": 25,
+    "rating": 4.8,
+    "numReviews": 25,
+    "badge": "",
+    "colors": ["Black", "White"],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  },
+  {
+    "name": "USB-C Hub 10-in-1",
+    "image": "/images/product-usb-hub.png",
+    "images": [
+      "/images/product-usb-hub.png"
+    ],
+    "description": "Complete connectivity solution with HDMI, USB-A, SD card reader, Ethernet, and more.",
+    "brand": "Nova",
+    "category": "Accessories",
+    "price": 79,
+    "originalPrice": null,
+    "countInStock": 12,
+    "rating": 4.5,
+    "numReviews": 12,
+    "badge": "",
+    "colors": [],
+    "sizes": [],
+    "user": "ADMIN_USER_ID_PLACEHOLDER"
+  }
+]

@@ -1,10 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Users, Mail, Check, X, Edit, Trash2, Loader2, ShieldCheck, User } from 'lucide-react';
 import { useGetUsersQuery, useDeleteUserMutation } from '../../slices/usersApiSlice';
+import { Card, CardContent } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/Badge';
 
 const UserListScreen = () => {
   const { data: users, refetch, isLoading, error } = useGetUsersQuery();
-
   const [deleteUser, { isLoading: loadingDelete }] = useDeleteUserMutation();
 
   const deleteHandler = async (id) => {
@@ -20,88 +24,134 @@ const UserListScreen = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-extrabold text-white mb-8 tracking-tight">Users</h1>
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6"
+    >
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <Users className="h-8 w-8 text-primary" />
+          Users Management
+        </h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          Manage user accounts, update profile privileges, and oversee system authorization
+        </p>
+      </div>
 
       {loadingDelete && (
-        <div className="flex justify-center items-center py-4 mb-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
-        </div>
+        <Card className="border-warning/30 bg-warning/10">
+          <CardContent className="flex items-center gap-3 p-4">
+            <Loader2 className="h-5 w-5 animate-spin text-warning" />
+            <span className="text-sm font-medium text-warning-foreground">Deleting user account...</span>
+          </CardContent>
+        </Card>
       )}
 
       {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
+        <div className="flex flex-col justify-center items-center py-24 gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground animate-pulse text-sm">Loading user directory...</p>
         </div>
       ) : error ? (
-        <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-6 py-4 rounded-xl flex items-center space-x-3 backdrop-blur-sm">
-          <svg className="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span className="font-medium">{error?.data?.message || error.error}</span>
-        </div>
+        <Card className="border-destructive/30 bg-destructive/10">
+          <CardContent className="flex items-center gap-3 p-6 text-destructive-foreground">
+            <span className="font-semibold text-sm">Error:</span>
+            <span className="text-sm">{error?.data?.message || error.error}</span>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-700">
-              <thead className="bg-slate-800/80">
-                <tr>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">ID</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Name</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Email</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Admin</th>
-                  <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-700 bg-slate-800/30">
-                {users.map((user) => (
-                  <tr key={user._id} className="hover:bg-slate-700/30 transition-colors duration-200">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 font-mono">
-                      {user._id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
-                      {user.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
-                      <a href={`mailto:${user.email}`} className="text-indigo-400 hover:underline">{user.email}</a>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.isAdmin ? (
-                        <div className="flex items-center text-green-400">
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                      ) : (
-                        <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-3">
-                      <Link
-                        to={`/admin/user/${user._id}/edit`}
-                        className="inline-flex items-center px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition-colors duration-200"
-                        title="Edit User"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                      </Link>
-                      <button
-                        onClick={() => deleteHandler(user._id)}
-                        className="inline-flex items-center px-3 py-1.5 bg-red-600/80 hover:bg-red-500 text-white rounded-lg transition-colors duration-200"
-                        title="Delete User"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                      </button>
-                    </td>
+        <Card className="border-border/50 bg-card/30 backdrop-blur-md overflow-hidden">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-border/50 bg-muted/20 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <th scope="col" className="px-6 py-4">ID</th>
+                    <th scope="col" className="px-6 py-4">Name</th>
+                    <th scope="col" className="px-6 py-4">Email</th>
+                    <th scope="col" className="px-6 py-4">Role</th>
+                    <th scope="col" className="px-6 py-4 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                </thead>
+                <tbody className="divide-y divide-border/30 text-sm">
+                  {users.map((userItem, idx) => (
+                    <motion.tr
+                      key={userItem._id}
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.03 }}
+                      className="hover:bg-muted/10 transition-colors group"
+                    >
+                      <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
+                        {userItem._id}
+                      </td>
+                      <td className="px-6 py-4 font-medium text-foreground">
+                        {userItem.name}
+                      </td>
+                      <td className="px-6 py-4">
+                        <a
+                          href={`mailto:${userItem.email}`}
+                          className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-xs"
+                        >
+                          <Mail className="h-3.5 w-3.5" />
+                          {userItem.email}
+                        </a>
+                      </td>
+                      <td className="px-6 py-4">
+                        {userItem.isAdmin ? (
+                          <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20 gap-1 font-medium">
+                            <ShieldCheck className="h-3 w-3" />
+                            Admin
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-muted-foreground border-border/60 hover:bg-muted/30 gap-1 font-medium">
+                            <User className="h-3 w-3 text-muted-foreground" />
+                            Customer
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            asChild
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          >
+                            <Link to={`/admin/user/${userItem._id}/edit`}>
+                              <Edit className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => deleteHandler(userItem._id)}
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            disabled={userItem.isAdmin}
+                            title={userItem.isAdmin ? "Cannot delete admin users" : "Delete user"}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                  {users.length === 0 && (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
+                        No registered users found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       )}
-    </div>
+    </motion.div>
   );
 };
 

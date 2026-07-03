@@ -18,6 +18,8 @@ const orderSchema = mongoose.Schema(
           required: true,
           ref: 'Product',
         },
+        selectedColor: { type: String },
+        selectedSize: { type: String },
       },
     ],
     shippingAddress: {

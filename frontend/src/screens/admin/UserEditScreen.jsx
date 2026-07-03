@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Loader2, User, Mail, ShieldCheck } from 'lucide-react';
 import { 
   useGetUserDetailsQuery, 
   useUpdateUserMutation 
 } from '../../slices/usersApiSlice';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
 
 const UserEditScreen = () => {
   const { id: userId } = useParams();
@@ -13,7 +17,6 @@ const UserEditScreen = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const { data: user, isLoading, error, refetch } = useGetUserDetailsQuery(userId);
-
   const [updateUser, { isLoading: loadingUpdate }] = useUpdateUserMutation();
 
   const navigate = useNavigate();
@@ -29,7 +32,7 @@ const UserEditScreen = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      await updateUser({ userId, name, email, isAdmin });
+      await updateUser({ userId, name, email, isAdmin }).unwrap();
       alert('User updated successfully');
       refetch();
       navigate('/admin/userlist');
@@ -40,84 +43,132 @@ const UserEditScreen = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Link 
-        to="/admin/userlist" 
-        className="inline-flex items-center text-slate-400 hover:text-white mb-8 transition-colors duration-200"
-      >
-        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-        Back to Users
-      </Link>
-
-      <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
-        <h1 className="text-3xl font-extrabold text-white mb-8 tracking-tight">Edit User</h1>
-
-        {loadingUpdate && (
-          <div className="flex justify-center items-center py-4 mb-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-500"></div>
-          </div>
-        ) : error ? (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-6 py-4 rounded-xl flex items-center space-x-3 mb-6">
-            <svg className="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="font-medium">{error?.data?.message || error.error}</span>
-          </div>
-        ) : (
-          <form onSubmit={submitHandler} className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">Name</label>
-              <input
-                type="text"
-                id="name"
-                placeholder="Enter name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
-              <input
-                type="email"
-                id="email"
-                placeholder="Enter email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-              />
-            </div>
-
-            <div className="flex items-center space-x-3 py-2">
-              <input
-                type="checkbox"
-                id="isAdmin"
-                checked={isAdmin}
-                onChange={(e) => setIsAdmin(e.target.checked)}
-                className="w-5 h-5 bg-slate-900 border border-slate-700 rounded text-indigo-500 focus:ring-indigo-500 focus:ring-offset-slate-800 transition-colors cursor-pointer"
-              />
-              <label htmlFor="isAdmin" className="text-sm font-medium text-slate-300 cursor-pointer select-none">
-                Is Admin
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl transition-colors duration-200 mt-8 shadow-lg shadow-indigo-600/30"
-            >
-              Update User
-            </button>
-          </form>
-        )}
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6 max-w-lg mx-auto"
+    >
+      <div>
+        <Button
+          variant="ghost"
+          asChild
+          className="gap-2 text-muted-foreground hover:text-foreground mb-4"
+        >
+          <Link to="/admin/userlist">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Users
+          </Link>
+        </Button>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <User className="h-8 w-8 text-primary" />
+          Edit User Account
+        </h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          Update the profile details and system privileges for this customer account
+        </p>
       </div>
-    </div>
+
+      {isLoading ? (
+        <div className="flex flex-col justify-center items-center py-24 gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground animate-pulse text-sm">Loading account details...</p>
+        </div>
+      ) : error ? (
+        <Card className="border-destructive/30 bg-destructive/10">
+          <CardContent className="flex items-center gap-3 p-6 text-destructive-foreground">
+            <span className="font-semibold text-sm">Error:</span>
+            <span className="text-sm">{error?.data?.message || error.error}</span>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-border/50 bg-card/30 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              Account Settings
+            </CardTitle>
+            <CardDescription>Configure credentials and administrator controls</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={submitHandler} className="space-y-5">
+              <div>
+                <label htmlFor="name" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                    <User className="h-4 w-4" />
+                  </span>
+                  <input
+                    type="text"
+                    id="name"
+                    required
+                    placeholder="Enter full name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-muted/20 border border-border/80 rounded-xl pl-10 pr-4 py-2.5 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                  </span>
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    placeholder="Enter email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-muted/20 border border-border/80 rounded-xl pl-10 pr-4 py-2.5 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3 py-3 border-t border-border/40 mt-6">
+                <input
+                  type="checkbox"
+                  id="isAdmin"
+                  checked={isAdmin}
+                  onChange={(e) => setIsAdmin(e.target.checked)}
+                  className="w-5 h-5 bg-muted/20 border border-border rounded text-primary focus:ring-primary focus:ring-offset-background transition-colors cursor-pointer"
+                />
+                <label htmlFor="isAdmin" className="text-sm font-semibold text-foreground cursor-pointer select-none">
+                  Grant Administrator Privileges
+                </label>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-border/40">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={loadingUpdate}
+                  onClick={() => navigate('/admin/userlist')}
+                  className="px-5 rounded-xl border-border text-foreground hover:bg-muted/50"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={loadingUpdate}
+                  className="px-6 rounded-xl font-semibold shadow-lg shadow-primary/20 gap-2"
+                >
+                  {loadingUpdate && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+    </motion.div>
   );
 };
 
