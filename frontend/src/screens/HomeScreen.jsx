@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useGetProductsQuery } from '../slices/productsApiSlice';
 import Meta from '../components/Meta';
@@ -9,7 +9,9 @@ import { toast } from 'react-toastify';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { wishlistItems } = useSelector((state) => state.wishlist);
+  const { userInfo } = useSelector((state) => state.auth);
   const [email, setEmail] = useState('');
 
   // Fetch products from the API to dynamically count categories and get MongoDB IDs
@@ -95,6 +97,11 @@ const HomeScreen = () => {
   const handleToggleWishlist = (e, product) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!userInfo) {
+      toast.info('Please sign in to add items to your wishlist');
+      navigate('/login');
+      return;
+    }
     const isWishlisted = wishlistItems.some((item) => item._id === product._id);
     if (isWishlisted) {
       dispatch(removeFromWishlist(product._id));

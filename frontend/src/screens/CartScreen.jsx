@@ -24,18 +24,29 @@ const CartScreen = () => {
 
   const cart = useSelector((state) => state.cart);
   const { cartItems, couponCode, discountPercentage } = cart;
+  const { userInfo } = useSelector((state) => state.auth);
 
   const [couponInput, setCouponInput] = useState('');
 
   const [getCoupon, { isLoading: loadingCoupon }] = useLazyGetCouponByCodeQuery();
 
   const handleQtyChange = (item, newQty) => {
+    if (!userInfo) {
+      toast.info('Please sign in to update your cart');
+      navigate('/login');
+      return;
+    }
     if (newQty >= 1 && newQty <= item.countInStock) {
       dispatch(addToCart({ ...item, qty: newQty }));
     }
   };
 
   const removeFromCartHandler = (id) => {
+    if (!userInfo) {
+      toast.info('Please sign in to modify your cart');
+      navigate('/login');
+      return;
+    }
     dispatch(removeFromCart(id));
     toast.success('Item removed from cart');
   };

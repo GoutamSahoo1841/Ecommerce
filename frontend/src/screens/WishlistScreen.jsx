@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeFromWishlist } from '../slices/wishlistSlice';
 import { addToCart } from '../slices/cartSlice';
@@ -9,20 +9,37 @@ import { Card, CardContent } from '../components/ui/Card';
 import { toast } from 'react-toastify';
 
 const WishlistScreen = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { wishlistItems } = useSelector((state) => state.wishlist);
+  const { userInfo } = useSelector((state) => state.auth);
 
   const removeFromWishlistHandler = (id) => {
+    if (!userInfo) {
+      toast.info('Please sign in to modify your wishlist');
+      navigate('/login');
+      return;
+    }
     dispatch(removeFromWishlist(id));
     toast.success('Removed from wishlist');
   };
 
   const addToCartHandler = (item) => {
+    if (!userInfo) {
+      toast.info('Please sign in to add items to your cart');
+      navigate('/login');
+      return;
+    }
     dispatch(addToCart({ ...item, qty: 1 }));
     toast.success(`Added ${item.name} to cart`);
   };
 
   const clearWishlistHandler = () => {
+    if (!userInfo) {
+      toast.info('Please sign in to modify your wishlist');
+      navigate('/login');
+      return;
+    }
     wishlistItems.forEach((item) => {
       dispatch(removeFromWishlist(item._id));
     });
@@ -30,6 +47,11 @@ const WishlistScreen = () => {
   };
 
   const addAllToCartHandler = () => {
+    if (!userInfo) {
+      toast.info('Please sign in to add items to your cart');
+      navigate('/login');
+      return;
+    }
     wishlistItems.forEach((item) => {
       if (item.countInStock > 0) {
         dispatch(addToCart({ ...item, qty: 1 }));

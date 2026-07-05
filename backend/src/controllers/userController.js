@@ -12,7 +12,7 @@ export const authUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
+  if (user && !user.isAdmin && (await user.matchPassword(password))) {
     const token = generateToken(res, user._id);
     
     res.json({
@@ -20,11 +20,42 @@ export const authUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      phone: user.phone || '',
+      bio: user.bio || '',
+      token,
+    });
+  } else if (user && user.isAdmin) {
+    res.status(401);
+    throw new Error('Admin account detected. Please use Admin Login.');
+  } else {
+    res.status(401);
+    throw new Error('Invalid email or password');
+  }
+});
+
+// @desc    Auth admin & get token
+// @route   POST /api/users/admin/login
+// @access  Public
+export const authAdmin = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (user && user.isAdmin && (await user.matchPassword(password))) {
+    const token = generateToken(res, user._id);
+    
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      phone: user.phone || '',
+      bio: user.bio || '',
       token,
     });
   } else {
     res.status(401);
-    throw new Error('Invalid email or password');
+    throw new Error('Invalid admin email or password');
   }
 });
 
@@ -62,6 +93,8 @@ export const registerUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      phone: user.phone || '',
+      bio: user.bio || '',
       token,
     });
   } else {
@@ -82,6 +115,8 @@ export const getUserProfile = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      phone: user.phone || '',
+      bio: user.bio || '',
     });
   } else {
     res.status(404);
@@ -98,6 +133,8 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
+    user.phone = req.body.phone !== undefined ? req.body.phone : user.phone;
+    user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
 
     if (req.body.password) {
       user.password = req.body.password;
@@ -110,6 +147,8 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
+      phone: updatedUser.phone || '',
+      bio: updatedUser.bio || '',
       token: generateToken(res, updatedUser._id),
     });
   } else {
@@ -168,6 +207,8 @@ export const updateUser = asyncHandler(async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
+    user.phone = req.body.phone !== undefined ? req.body.phone : user.phone;
+    user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
     user.isAdmin = Boolean(req.body.isAdmin);
 
     const updatedUser = await user.save();
@@ -177,6 +218,8 @@ export const updateUser = asyncHandler(async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
+      phone: updatedUser.phone || '',
+      bio: updatedUser.bio || '',
     });
   } else {
     res.status(404);

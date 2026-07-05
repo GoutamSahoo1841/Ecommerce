@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,16 +10,21 @@ import ChatBox from './components/ChatBox';
 
 const App = () => {
   const { userInfo } = useSelector((state) => state.auth);
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   useEffect(() => {
     let socket;
-    
+
     // Connect to socket if user is admin
     if (userInfo && userInfo.isAdmin) {
       // Create socket connection
       // For local development it connects to the same host
       socket = io(window.location.origin === 'http://localhost:5173' ? 'http://localhost:5000' : '/');
-      
+
       // Join admin room
       socket.emit('join_admin');
 
@@ -47,7 +52,7 @@ const App = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow pt-28 pb-12">
+      <main className="flex-grow pt-15 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <main className="py-8 min-h-[80vh]">
             <Outlet />

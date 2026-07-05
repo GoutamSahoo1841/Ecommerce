@@ -71,6 +71,11 @@ const ProductScreen = () => {
 
   const toggleWishlistHandler = (e) => {
     e.preventDefault();
+    if (!userInfo) {
+      toast.info('Please sign in to add items to your wishlist');
+      navigate('/login?redirect=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
     if (existInWishlist) {
       dispatch(removeFromWishlist(product._id));
       toast.info('Removed from wishlist');
@@ -81,6 +86,11 @@ const ProductScreen = () => {
   };
 
   const addToCartHandler = () => {
+    if (!userInfo) {
+      toast.info('Please sign in to add items to your cart');
+      navigate('/login?redirect=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
     dispatch(addToCart({ ...product, qty, selectedColor, selectedSize }));
     toast.success(`Added ${qty} ${product.name} to cart`);
     navigate('/cart');

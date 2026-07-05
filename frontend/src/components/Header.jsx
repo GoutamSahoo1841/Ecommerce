@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLogoutMutation } from '../slices/usersApiSlice';
@@ -31,7 +31,8 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth);
   
   const [isScrolled, setIsScrolled] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -253,111 +254,16 @@ const Header = () => {
                   )}
                 </Button>
               </Link>
-
-              {/* User Dropdown */}
-              <div className="relative">
+              {/* User Profile Link */}
+              <Link to={userInfo ? '/profile' : '/login'}>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="text-muted-foreground hover:text-foreground rounded-full hover:bg-secondary/60 h-9 w-9"
                 >
                   <User className="h-5 w-5" />
                 </Button>
-
-                <AnimatePresence>
-                  {dropdownOpen && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-52 bg-card rounded-xl shadow-xl py-2 border border-border z-50 overflow-hidden"
-                    >
-                      {userInfo ? (
-                        <>
-                          <div className="px-4 py-2.5 border-b border-border/50 bg-secondary/10">
-                            <span className="text-[10px] uppercase font-bold text-muted-foreground block">Logged in as</span>
-                            <span className="text-sm font-semibold text-foreground block truncate mt-0.5">{userInfo.name}</span>
-                          </div>
-                          <Link
-                            to="/profile"
-                            className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors font-medium"
-                            onClick={() => setDropdownOpen(false)}
-                          >
-                            My Profile
-                          </Link>
-                          {userInfo.isAdmin && (
-                            <>
-                              <div className="border-t border-border/50 my-1"></div>
-                              <div className="px-4 py-1.5 text-[10px] font-bold text-primary uppercase tracking-wider bg-primary/5">Admin Controls</div>
-                              <Link
-                                to="/admin/dashboard"
-                                className="block px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors font-medium"
-                                onClick={() => setDropdownOpen(false)}
-                              >
-                                Dashboard
-                              </Link>
-                              <Link
-                                to="/admin/productlist"
-                                className="block px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors font-medium"
-                                onClick={() => setDropdownOpen(false)}
-                              >
-                                Products
-                              </Link>
-                              <Link
-                                to="/admin/userlist"
-                                className="block px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors font-medium"
-                                onClick={() => setDropdownOpen(false)}
-                              >
-                                Users
-                              </Link>
-                              <Link
-                                to="/admin/orderlist"
-                                className="block px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors font-medium"
-                                onClick={() => setDropdownOpen(false)}
-                              >
-                                Orders
-                              </Link>
-                              <Link
-                                to="/admin/chat"
-                                className="block px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors font-medium"
-                                onClick={() => setDropdownOpen(false)}
-                              >
-                                Live Chat
-                              </Link>
-                            </>
-                          )}
-                          <div className="border-t border-border/50 my-1"></div>
-                          <button
-                            onClick={logoutHandler}
-                            className="w-full text-left px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors flex items-center gap-2 font-medium"
-                          >
-                            <LogOut className="h-4 w-4" />
-                            Logout
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <Link
-                            to="/login"
-                            className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors font-medium"
-                            onClick={() => setDropdownOpen(false)}
-                          >
-                            Sign In
-                          </Link>
-                          <Link
-                            to="/register"
-                            className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors font-medium"
-                            onClick={() => setDropdownOpen(false)}
-                          >
-                            Register
-                          </Link>
-                        </>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              </Link>
 
               {/* Mobile Menu Toggle */}
               <Button

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
@@ -11,13 +11,20 @@ import { toast } from 'react-toastify';
 
 const Product = ({ product, index = 0 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { wishlistItems } = useSelector((state) => state.wishlist);
+  const { userInfo } = useSelector((state) => state.auth);
   
   const isWishlisted = wishlistItems.some((item) => item._id === product._id);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!userInfo) {
+      toast.info('Please sign in to add items to your cart');
+      navigate('/login');
+      return;
+    }
     dispatch(addToCart({ ...product, qty: 1 }));
     toast.success(`Added ${product.name} to cart`);
   };
@@ -25,6 +32,11 @@ const Product = ({ product, index = 0 }) => {
   const handleToggleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!userInfo) {
+      toast.info('Please sign in to add items to your wishlist');
+      navigate('/login');
+      return;
+    }
     if (isWishlisted) {
       dispatch(removeFromWishlist(product._id));
       toast.info('Removed from wishlist');
@@ -86,7 +98,7 @@ const Product = ({ product, index = 0 }) => {
                   </Badge>
                 )
               )}
-              {hasDiscount && (!product.badge || product.badge.toLowerCase() !== 'sale') && (
+              {hasDiscount && (
                 <Badge variant="destructive" className="shadow-sm font-semibold border-none py-1 bg-rose-500 text-white">
                   -{discountPercentage}%
                 </Badge>
