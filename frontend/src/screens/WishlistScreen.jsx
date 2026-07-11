@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeFromWishlist } from '../slices/wishlistSlice';
-import { addToCart } from '../slices/cartSlice';
+import { addToCart, enableBuyNow } from '../slices/cartSlice';
 import { Heart, Trash2, ShoppingBag, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
@@ -32,6 +32,16 @@ const WishlistScreen = () => {
     }
     dispatch(addToCart({ ...item, qty: 1 }));
     toast.success(`Added ${item.name} to cart`);
+  };
+
+  const buyNowHandler = (item) => {
+    if (!userInfo) {
+      toast.info('Please sign in to buy items');
+      navigate('/login?redirect=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
+    dispatch(enableBuyNow({ ...item, qty: 1 }));
+    navigate('/shipping');
   };
 
   const clearWishlistHandler = () => {
@@ -70,7 +80,7 @@ const WishlistScreen = () => {
             {wishlistItems.length} items saved
           </p>
         </div>
-        
+
         {wishlistItems.length > 0 && (
           <div className="flex gap-2">
             <Button variant="outline" onClick={clearWishlistHandler} className="rounded-xl h-10 text-xs">
@@ -108,23 +118,23 @@ const WishlistScreen = () => {
           {wishlistItems.map((item) => (
             <Card key={item._id} className="overflow-hidden shadow-sm relative group">
               {/* Delete from wishlist button */}
-              <button 
+              <button
                 onClick={() => removeFromWishlistHandler(item._id)}
                 className="absolute top-3 right-3 z-10 w-8 h-8 bg-card/80 hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500 rounded-full flex items-center justify-center shadow-sm border border-border/50 transition-colors focus:outline-none"
                 title="Remove from wishlist"
               >
                 <XIcon className="w-4 h-4" />
               </button>
-              
+
               {/* Image */}
               <Link to={`/product/${item._id}`} className="block relative aspect-square overflow-hidden bg-secondary/30">
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </Link>
-              
+
               {/* Content */}
               <div className="p-4 flex flex-col justify-between h-[150px]">
                 <div className="space-y-1">
@@ -137,14 +147,32 @@ const WishlistScreen = () => {
                 </div>
                 <div className="flex items-center justify-between border-t border-border/30 pt-3">
                   <span className="text-base font-extrabold text-primary">${item.price}</span>
-                  <Button 
-                    onClick={() => addToCartHandler(item)}
-                    disabled={item.countInStock === 0}
-                    size="sm"
-                    className="rounded-xl text-xs h-8 text-white px-3 font-semibold"
-                  >
-                    {item.countInStock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                  </Button>
+                  {item.countInStock > 0 ? (
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => buyNowHandler(item)}
+                        size="sm"
+                        className="rounded-xl text-[10px] h-8 bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 font-semibold"
+                      >
+                        Buy Now
+                      </Button>
+                      <Button
+                        onClick={() => addToCartHandler(item)}
+                        size="sm"
+                        className="rounded-xl text-[10px] h-8 text-white px-2.5 font-semibold"
+                      >
+                        Add to Cart
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      disabled
+                      size="sm"
+                      className="rounded-xl text-xs h-8 text-muted-foreground px-3 font-semibold"
+                    >
+                      Out of Stock
+                    </Button>
+                  )}
                 </div>
               </div>
             </Card>

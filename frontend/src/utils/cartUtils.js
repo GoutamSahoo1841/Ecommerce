@@ -3,8 +3,10 @@ export const addDecimals = (num) => {
 };
 
 export const updateCart = (state) => {
+  const items = state.isBuyNow && state.buyNowItem ? [state.buyNowItem] : state.cartItems;
+
   // Calculate items price
-  const itemsPrice = state.cartItems.reduce(
+  const itemsPrice = items.reduce(
     (acc, item) => acc + item.price * item.qty,
     0
   );
@@ -30,8 +32,15 @@ export const updateCart = (state) => {
   const totalPrice = discountedItemsPrice + shippingPrice + taxPrice;
   state.totalPrice = addDecimals(totalPrice);
 
-  // Save to localStorage
-  localStorage.setItem('cart', JSON.stringify(state));
+  // Save to localStorage under user-scoped key
+  const userInfo = localStorage.getItem('userInfo')
+    ? JSON.parse(localStorage.getItem('userInfo'))
+    : null;
+  const cartKey = userInfo ? `cart_${userInfo._id}` : 'cart_guest';
+  localStorage.setItem(cartKey, JSON.stringify(state));
+
+  // Also save to generic 'cart' key for compatibility/failsafe if needed, or remove it.
+  // We will keep writing it to user-scoped key only as requested.
 
   return state;
 };

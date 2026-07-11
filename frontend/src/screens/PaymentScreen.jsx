@@ -58,6 +58,26 @@ const PaymentScreen = () => {
                 PayPal or Credit Card
               </label>
             </div>
+
+            <div 
+              onClick={() => setPaymentMethod('COD')}
+              className={`flex items-center bg-card p-4 border rounded-xl hover:border-primary transition-colors cursor-pointer select-none ${
+                paymentMethod === 'COD' ? 'border-primary bg-primary/5' : 'border-border/50'
+              }`}
+            >
+              <input
+                id="cod"
+                name="paymentMethod"
+                type="radio"
+                value="COD"
+                checked={paymentMethod === 'COD'}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-4 h-4 text-primary bg-secondary border-border/50 focus:ring-primary/30 cursor-pointer"
+              />
+              <label htmlFor="cod" className="ml-3 block text-sm font-semibold text-foreground cursor-pointer flex-1">
+                Cash on Delivery (COD)
+              </label>
+            </div>
           </div>
         </div>
 

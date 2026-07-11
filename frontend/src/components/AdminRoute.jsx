@@ -6,7 +6,7 @@ import {
   Package, 
   ShoppingCart, 
   Users, 
-  MessageSquare,
+  Settings,
   Home
 } from 'lucide-react';
 
@@ -18,8 +18,8 @@ const AdminRoute = () => {
     { icon: LayoutDashboard, label: 'Dashboard', href: '/admin/dashboard' },
     { icon: Package, label: 'Products', href: '/admin/productlist' },
     { icon: ShoppingCart, label: 'Orders', href: '/admin/orderlist' },
-    { icon: Users, label: 'Users', href: '/admin/userlist' },
-    { icon: MessageSquare, label: 'Live Chat', href: '/admin/chat' },
+    { icon: Users, label: 'Customers', href: '/admin/userlist' },
+    { icon: Settings, label: 'Settings', href: '/profile' },
   ];
 
   if (!userInfo || !userInfo.isAdmin) {
@@ -47,10 +47,10 @@ const AdminRoute = () => {
                 <Link
                   key={item.href}
                   to={item.href}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all shrink-0 ${
+                  className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all shrink-0 ${
                     isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                      ? 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 font-bold shadow-sm/5'
+                      : 'text-muted-foreground hover:bg-secondary/40 hover:text-foreground'
                   }`}
                 >
                   <item.icon className="h-4.5 w-4.5" />

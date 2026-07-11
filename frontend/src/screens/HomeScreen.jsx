@@ -286,9 +286,8 @@ const HomeScreen = () => {
                     {/* Wishlist Icon */}
                     <button
                       onClick={(e) => handleToggleWishlist(e, p)}
-                      className={`absolute right-3 top-3 z-10 flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs transition-colors focus:outline-hidden ${
-                        isWish ? 'text-rose-500' : 'text-slate-400 hover:text-rose-500'
-                      }`}
+                      className={`absolute right-3 top-3 z-10 flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs transition-colors focus:outline-hidden ${isWish ? 'text-rose-500' : 'text-slate-400 hover:text-rose-500'
+                        }`}
                     >
                       <Heart className={`h-4 w-4 ${isWish ? 'fill-current' : ''}`} />
                     </button>
@@ -303,7 +302,7 @@ const HomeScreen = () => {
                       <h3 className="mt-1 line-clamp-1 font-bold text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-[15px] sm:text-base">
                         {p.name}
                       </h3>
-                      
+
                       {/* Rating row */}
                       <div className="mt-2 flex items-center gap-1.5">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 border-none" />
@@ -423,9 +422,8 @@ const HomeScreen = () => {
                       {/* Wishlist Icon on top-right of image */}
                       <button
                         onClick={(e) => handleToggleWishlist(e, p)}
-                        className={`absolute right-3 top-3 z-10 flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs transition-colors focus:outline-hidden ${
-                          isWish ? 'text-rose-500' : 'text-slate-400 hover:text-rose-500'
-                        }`}
+                        className={`absolute right-3 top-3 z-10 flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xs transition-colors focus:outline-hidden ${isWish ? 'text-rose-500' : 'text-slate-400 hover:text-rose-500'
+                          }`}
                       >
                         <Heart className={`h-4 w-4 ${isWish ? 'fill-current' : ''}`} />
                       </button>
@@ -440,7 +438,7 @@ const HomeScreen = () => {
                         <h3 className="mt-1 line-clamp-1 font-bold text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-[15px] sm:text-base">
                           {p.name}
                         </h3>
-                        
+
                         {/* Rating row */}
                         <div className="mt-2 flex items-center gap-1.5">
                           <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 border-none" />

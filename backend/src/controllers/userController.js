@@ -117,6 +117,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
       isAdmin: user.isAdmin,
       phone: user.phone || '',
       bio: user.bio || '',
+      addresses: user.addresses || [],
     });
   } else {
     res.status(404);
@@ -135,6 +136,10 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
     user.email = req.body.email || user.email;
     user.phone = req.body.phone !== undefined ? req.body.phone : user.phone;
     user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
+    
+    if (req.body.addresses) {
+      user.addresses = req.body.addresses;
+    }
 
     if (req.body.password) {
       user.password = req.body.password;
@@ -149,6 +154,7 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
       isAdmin: updatedUser.isAdmin,
       phone: updatedUser.phone || '',
       bio: updatedUser.bio || '',
+      addresses: updatedUser.addresses || [],
       token: generateToken(res, updatedUser._id),
     });
   } else {

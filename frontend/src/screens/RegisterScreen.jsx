@@ -27,9 +27,9 @@ const RegisterScreen = () => {
 
   useEffect(() => {
     if (userInfo) {
-      navigate(redirect);
+      navigate('/');
     }
-  }, [navigate, redirect, userInfo]);
+  }, [navigate, userInfo]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -40,7 +40,7 @@ const RegisterScreen = () => {
     try {
       const res = await register({ name, email, password }).unwrap();
       dispatch(setCredentials({ ...res }));
-      navigate(redirect);
+      navigate('/');
     } catch (err) {
       // Handled by mutation hook
     }

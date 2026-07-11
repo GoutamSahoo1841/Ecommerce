@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { 
@@ -26,6 +26,9 @@ import { toast } from 'react-toastify';
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const isPlaced = searchParams.get('placed') === 'true';
 
   const { data: order, refetch, isLoading, error } = useGetOrderDetailsQuery(orderId);
 
@@ -94,6 +97,24 @@ const OrderScreen = () => {
     }
   };
 
+  const payOrderHandler = async () => {
+    try {
+      await payOrder({
+        orderId,
+        details: {
+          id: 'COD_MANUAL_PAY',
+          status: 'COMPLETED',
+          update_time: new Date().toISOString(),
+          email_address: order.user.email,
+        },
+      });
+      refetch();
+      toast.success('Order marked as paid successfully');
+    } catch (err) {
+      toast.error(err?.data?.message || err.error || 'Failed to update payment');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col justify-center items-center min-h-[50vh] text-muted-foreground text-sm">
@@ -124,6 +145,18 @@ const OrderScreen = () => {
         <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Order Details</h1>
         <p className="text-sm font-mono text-muted-foreground mt-1">ID: {order._id.toUpperCase()}</p>
       </div>
+
+      {isPlaced && (
+        <div className="bg-emerald-500/10 text-emerald-500 p-6 rounded-2xl border border-emerald-500/20 shadow-sm flex flex-col md:flex-row items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0 shadow-md">
+            <Check className="w-6 h-6 stroke-[3]" />
+          </div>
+          <div className="text-center md:text-left space-y-1">
+            <h3 className="font-extrabold text-lg text-foreground">Order Placed Successfully!</h3>
+            <p className="text-sm text-muted-foreground">Thank you for your purchase. Your order details are shown below.</p>
+          </div>
+        </div>
+      )}
 
       {/* Visual Timeline Stepper */}
       <Card className="shadow-sm border-border/50 bg-secondary/10">
@@ -289,17 +322,29 @@ const OrderScreen = () => {
 
               {!order.isPaid && (
                 <div className="border-t border-border/50 pt-6">
-                  {loadingPay && <div className="text-center py-2 text-xs text-muted-foreground animate-pulse">Processing Payment...</div>}
-                  {isPending ? (
-                    <div className="flex justify-center items-center py-2">
-                      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
+                  {order.paymentMethod === 'COD' ? (
+                    <div className="bg-secondary/40 border border-border rounded-xl p-4 text-center space-y-2">
+                      <Info className="h-5 w-5 text-primary mx-auto" />
+                      <h4 className="font-bold text-sm text-foreground">Cash on Delivery</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Please pay in cash when your order is delivered.
+                      </p>
                     </div>
                   ) : (
-                    <PayPalButtons
-                      createOrder={createOrder}
-                      onApprove={onApprove}
-                      onError={onError}
-                    />
+                    <>
+                      {loadingPay && <div className="text-center py-2 text-xs text-muted-foreground animate-pulse">Processing Payment...</div>}
+                      {isPending ? (
+                        <div className="flex justify-center items-center py-2">
+                          <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
+                        </div>
+                      ) : (
+                        <PayPalButtons
+                          createOrder={createOrder}
+                          onApprove={onApprove}
+                          onError={onError}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -310,13 +355,24 @@ const OrderScreen = () => {
                 </div>
               )}
 
-              {userInfo && userInfo.isAdmin && order.isPaid && !order.isDelivered && (
+              {userInfo && userInfo.isAdmin && (order.isPaid || order.paymentMethod === 'COD') && !order.isDelivered && (
                 <Button
                   type="button"
-                  className="w-full shadow-md text-white font-bold h-11"
+                  className="w-full shadow-md text-white font-bold h-11 mb-2"
                   onClick={deliverOrderHandler}
                 >
                   Mark As Delivered
+                </Button>
+              )}
+
+              {userInfo && userInfo.isAdmin && !order.isPaid && (
+                <Button
+                  type="button"
+                  className="w-full shadow-md text-white font-bold h-11 bg-emerald-600 hover:bg-emerald-700"
+                  onClick={payOrderHandler}
+                  disabled={loadingPay}
+                >
+                  {loadingPay ? 'Processing...' : 'Mark As Paid'}
                 </Button>
               )}
             </CardContent>

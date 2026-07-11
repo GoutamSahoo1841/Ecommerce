@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { useProfileMutation, useLogoutMutation } from '../slices/usersApiSlice';
+import { useProfileMutation, useLogoutMutation, useGetUserProfileQuery } from '../slices/usersApiSlice';
 import { setCredentials, logout } from '../slices/authSlice';
 import { useGetMyOrdersQuery } from '../slices/ordersApiSlice';
 import { removeFromWishlist } from '../slices/wishlistSlice';
-import { addToCart } from '../slices/cartSlice';
+import { addToCart, enableBuyNow } from '../slices/cartSlice';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  ShoppingBag, 
-  Check, 
+import {
+  User,
+  Mail,
+  Lock,
+  ShoppingBag,
+  Check,
   X,
   ArrowRight,
   Heart,
@@ -63,8 +63,7 @@ const ProfileScreen = () => {
     try {
       await logoutApiCall().unwrap();
       dispatch(logout());
-      toast.success('Logged out successfully');
-      navigate('/login');
+      window.location.href = '/';
     } catch (err) {
       toast.error('Failed to log out');
       console.error(err);
@@ -77,7 +76,7 @@ const ProfileScreen = () => {
       toast.error('Passwords do not match');
       return;
     }
-    
+
     try {
       const res = await updateProfile({
         _id: userInfo._id,
@@ -95,6 +94,78 @@ const ProfileScreen = () => {
     } catch (err) {
       toast.error(err?.data?.message || err.error || 'Failed to update profile');
     }
+  };
+
+  // Address edit state hooks and handlers
+  const { data: profile, isLoading: loadingProfile } = useGetUserProfileQuery();
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [editingAddressIndex, setEditingAddressIndex] = useState(-1);
+  const [addrAddress, setAddrAddress] = useState('');
+  const [addrCity, setAddrCity] = useState('');
+  const [addrPostalCode, setAddrPostalCode] = useState('');
+  const [addrCountry, setAddrCountry] = useState('');
+
+  const handleSaveAddress = async (e) => {
+    e.preventDefault();
+    if (!addrAddress || !addrCity || !addrPostalCode || !addrCountry) {
+      toast.error('Please fill in all address fields');
+      return;
+    }
+    const newAddress = {
+      address: addrAddress,
+      city: addrCity,
+      postalCode: addrPostalCode,
+      country: addrCountry,
+    };
+    try {
+      let updatedAddresses = [...(profile?.addresses || [])];
+      if (editingAddressIndex >= 0) {
+        updatedAddresses[editingAddressIndex] = newAddress;
+      } else {
+        updatedAddresses.push(newAddress);
+      }
+      await updateProfile({ addresses: updatedAddresses }).unwrap();
+      toast.success(editingAddressIndex >= 0 ? 'Address updated successfully' : 'Address added successfully');
+
+      setIsEditingAddress(false);
+      setEditingAddressIndex(-1);
+      setAddrAddress('');
+      setAddrCity('');
+      setAddrPostalCode('');
+      setAddrCountry('');
+    } catch (err) {
+      toast.error(err?.data?.message || err.error || 'Failed to save address');
+    }
+  };
+
+  const handleDeleteAddress = async (idx) => {
+    if (window.confirm('Are you sure you want to delete this address?')) {
+      try {
+        const updatedAddresses = (profile?.addresses || []).filter((_, i) => i !== idx);
+        await updateProfile({ addresses: updatedAddresses }).unwrap();
+        toast.success('Address deleted successfully');
+      } catch (err) {
+        toast.error(err?.data?.message || err.error || 'Failed to delete address');
+      }
+    }
+  };
+
+  const handleStartEdit = (addr, idx) => {
+    setAddrAddress(addr.address);
+    setAddrCity(addr.city);
+    setAddrPostalCode(addr.postalCode);
+    setAddrCountry(addr.country);
+    setEditingAddressIndex(idx);
+    setIsEditingAddress(true);
+  };
+
+  const handleStartAdd = () => {
+    setAddrAddress('');
+    setAddrCity('');
+    setAddrPostalCode('');
+    setAddrCountry('');
+    setEditingAddressIndex(-1);
+    setIsEditingAddress(true);
   };
 
   // Calculate stats
@@ -159,11 +230,10 @@ const ProfileScreen = () => {
                         setActiveTab(item.id);
                         setIsEditing(false);
                       }}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                        isActive
-                          ? 'bg-secondary text-foreground'
-                          : 'text-muted-foreground hover:bg-secondary/40 hover:text-foreground'
-                      }`}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${isActive
+                        ? 'bg-secondary text-foreground'
+                        : 'text-muted-foreground hover:bg-secondary/40 hover:text-foreground'
+                        }`}
                     >
                       <Icon className="h-4.5 w-4.5" />
                       {item.label}
@@ -187,7 +257,7 @@ const ProfileScreen = () => {
         <div className="lg:col-span-9">
           <Card className="shadow-sm border border-border/50 rounded-2xl bg-card">
             <CardContent className="p-6 sm:p-8">
-              
+
               {/* PROFILE TAB */}
               {activeTab === 'profile' && (
                 <div className="space-y-6">
@@ -293,7 +363,7 @@ const ProfileScreen = () => {
                     {isEditing && (
                       <div className="border-t border-border/40 pt-5 space-y-5">
                         <h4 className="text-sm font-bold text-foreground">Security Updates</h4>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           <div className="space-y-1.5">
                             <label className="block text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
@@ -492,7 +562,7 @@ const ProfileScreen = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                       {wishlistItems.map((item) => (
                         <Card key={item._id} className="overflow-hidden shadow-sm relative group border border-border/40 rounded-2xl bg-card">
-                          <button 
+                          <button
                             onClick={() => {
                               dispatch(removeFromWishlist(item._id));
                               toast.success('Removed from wishlist');
@@ -501,15 +571,15 @@ const ProfileScreen = () => {
                           >
                             <X className="w-4 h-4" />
                           </button>
-                          
+
                           <Link to={`/product/${item._id}`} className="block relative aspect-square overflow-hidden bg-secondary/20">
-                            <img 
-                              src={item.image} 
-                              alt={item.name} 
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           </Link>
-                          
+
                           <div className="p-4 flex flex-col justify-between h-[130px]">
                             <div className="space-y-1">
                               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{item.brand}</span>
@@ -521,17 +591,38 @@ const ProfileScreen = () => {
                             </div>
                             <div className="flex items-center justify-between border-t border-border/20 pt-3">
                               <span className="text-sm font-extrabold text-foreground">${item.price}</span>
-                              <Button 
-                                onClick={() => {
-                                  dispatch(addToCart({ ...item, qty: 1 }));
-                                  toast.success(`Added ${item.name} to cart`);
-                                }}
-                                disabled={item.countInStock === 0}
-                                size="sm"
-                                className="rounded-xl text-[10px] h-8 text-white px-3 font-semibold"
-                              >
-                                {item.countInStock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                              </Button>
+                              {item.countInStock > 0 ? (
+                                <div className="flex gap-2">
+                                  <Button
+                                    onClick={() => {
+                                      dispatch(enableBuyNow({ ...item, qty: 1 }));
+                                      navigate('/shipping');
+                                    }}
+                                    size="sm"
+                                    className="rounded-xl text-[10px] h-8 bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 font-semibold"
+                                  >
+                                    Buy Now
+                                  </Button>
+                                  <Button
+                                    onClick={() => {
+                                      dispatch(addToCart({ ...item, qty: 1 }));
+                                      toast.success(`Added ${item.name} to cart`);
+                                    }}
+                                    size="sm"
+                                    className="rounded-xl text-[10px] h-8 text-white px-2.5 font-semibold"
+                                  >
+                                    Add to Cart
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button
+                                  disabled
+                                  size="sm"
+                                  className="rounded-xl text-[10px] h-8 text-muted-foreground px-3 font-semibold"
+                                >
+                                  Out of Stock
+                                </Button>
+                              )}
                             </div>
                           </div>
                         </Card>
@@ -549,33 +640,117 @@ const ProfileScreen = () => {
                       <h2 className="text-2xl font-bold text-foreground">My Addresses</h2>
                       <p className="text-sm text-muted-foreground mt-1">Manage your delivery and billing addresses</p>
                     </div>
-                    <Button size="sm" className="rounded-xl text-white font-semibold">
-                      Add New
-                    </Button>
+                    {!isEditingAddress && (
+                      <Button size="sm" onClick={handleStartAdd} className="rounded-xl text-white font-semibold">
+                        Add New
+                      </Button>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="border border-border/50 bg-secondary/15 rounded-2xl p-5 relative space-y-3.5">
-                      <span className="absolute top-4 right-4 bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Default</span>
-                      <h4 className="font-bold text-sm text-foreground">{userInfo?.name} (Home)</h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        123 Tech Avenue, Apt 4B<br />
-                        Silicon Valley, CA 94025<br />
-                        United States
-                      </p>
-                      <p className="text-xs text-foreground font-semibold">+1 (555) 123-4567</p>
-                      <div className="flex gap-2 pt-2 border-t border-border/10">
-                        <button className="text-xs font-bold text-primary hover:underline">Edit</button>
-                        <span className="text-muted-foreground/30 text-xs">|</span>
-                        <button className="text-xs font-bold text-muted-foreground hover:text-foreground">Delete</button>
+                  {isEditingAddress ? (
+                    <form onSubmit={handleSaveAddress} className="space-y-4 p-5 bg-secondary/10 border border-border/50 rounded-2xl max-w-lg">
+                      <h3 className="text-sm font-bold text-foreground mb-3 pb-1 border-b border-border/20">
+                        {editingAddressIndex >= 0 ? 'Edit Address' : 'Add New Address'}
+                      </h3>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-muted-foreground">Address</label>
+                        <input
+                          type="text"
+                          placeholder="Enter address"
+                          value={addrAddress}
+                          onChange={(e) => setAddrAddress(e.target.value)}
+                          className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-muted-foreground">City</label>
+                        <input
+                          type="text"
+                          placeholder="Enter city"
+                          value={addrCity}
+                          onChange={(e) => setAddrCity(e.target.value)}
+                          className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-muted-foreground">Postal Code</label>
+                        <input
+                          type="text"
+                          placeholder="Enter postal code"
+                          value={addrPostalCode}
+                          onChange={(e) => setAddrPostalCode(e.target.value)}
+                          className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-muted-foreground">Country</label>
+                        <input
+                          type="text"
+                          placeholder="Enter country"
+                          value={addrCountry}
+                          onChange={(e) => setAddrCountry(e.target.value)}
+                          className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
+                          required
+                        />
+                      </div>
+                      <div className="flex gap-2.5 pt-2">
+                        <Button type="submit" size="sm" className="rounded-xl text-white font-semibold">
+                          Save Address
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEditingAddress(false)}
+                          className="rounded-xl font-semibold border-border hover:bg-secondary/40 text-foreground"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      {profile?.addresses && profile.addresses.map((addr, idx) => (
+                        <div key={idx} className="border border-border/50 bg-secondary/15 rounded-2xl p-5 relative space-y-3.5">
+                          {idx === 0 && (
+                            <span className="absolute top-4 right-4 bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Default</span>
+                          )}
+                          <h4 className="font-bold text-sm text-foreground">{userInfo?.name} (Option #{idx + 1})</h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            {addr.address}<br />
+                            {addr.city}, {addr.postalCode}<br />
+                            {addr.country}
+                          </p>
+                          <div className="flex gap-2 pt-2 border-t border-border/10">
+                            <button
+                              onClick={() => handleStartEdit(addr, idx)}
+                              className="text-xs font-bold text-primary hover:underline"
+                            >
+                              Edit
+                            </button>
+                            <span className="text-muted-foreground/30 text-xs">|</span>
+                            <button
+                              onClick={() => handleDeleteAddress(idx)}
+                              className="text-xs font-bold text-muted-foreground hover:text-foreground"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+
+                      <div
+                        onClick={handleStartAdd}
+                        className="border border-border/50 rounded-2xl p-5 space-y-3.5 flex flex-col justify-center items-center py-10 text-center text-muted-foreground hover:bg-secondary/10 transition-all border-dashed cursor-pointer"
+                      >
+                        <MapPin className="h-7 w-7 text-muted-foreground/45" />
+                        <p className="text-xs font-semibold">Add a secondary address</p>
                       </div>
                     </div>
-
-                    <div className="border border-border/50 rounded-2xl p-5 space-y-3.5 flex flex-col justify-center items-center py-10 text-center text-muted-foreground hover:bg-secondary/10 transition-all border-dashed cursor-pointer">
-                      <MapPin className="h-7 w-7 text-muted-foreground/45" />
-                      <p className="text-xs font-semibold">Add a secondary address</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
 
@@ -611,7 +786,7 @@ const ProfileScreen = () => {
                         <button className="text-xs font-bold text-muted-foreground hover:text-foreground">Delete</button>
                       </div>
                     </div>
-                    
+
                     <div className="border border-border/50 rounded-2xl p-5 flex flex-col justify-center items-center py-10 text-center text-muted-foreground hover:bg-secondary/10 transition-all border-dashed cursor-pointer">
                       <CreditCard className="h-7 w-7 text-muted-foreground/45" />
                       <p className="text-xs font-semibold">Add a new payment card</p>
@@ -636,7 +811,7 @@ const ProfileScreen = () => {
                       </div>
                       <input type="checkbox" defaultChecked className="h-4.5 w-4.5 accent-primary rounded cursor-pointer transition-colors" />
                     </div>
-                    
+
                     <div className="p-5 flex items-center justify-between hover:bg-secondary/5 transition-colors">
                       <div className="space-y-1 pr-4">
                         <h4 className="font-bold text-sm text-foreground">Promotions and Marketing</h4>
@@ -666,7 +841,7 @@ const ProfileScreen = () => {
 
                   <form onSubmit={submitHandler} className="border border-border/40 rounded-2xl p-6 space-y-5 max-w-xl bg-secondary/10">
                     <h3 className="text-sm font-bold text-foreground">Change Password</h3>
-                    
+
                     <div className="space-y-1.5">
                       <label className="block text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
                         <Lock className="h-3.5 w-3.5" />
@@ -732,7 +907,7 @@ const ProfileScreen = () => {
                         <option value="fr">Français</option>
                       </select>
                     </div>
-                    
+
                     <div className="pt-5 border-t border-border/20 space-y-3.5">
                       <h4 className="text-sm font-bold text-rose-600">Danger Zone</h4>
                       <p className="text-xs text-muted-foreground leading-relaxed">Once you delete your account, there is no going back. All order histories, wishlists, and user data will be permanently wiped.</p>

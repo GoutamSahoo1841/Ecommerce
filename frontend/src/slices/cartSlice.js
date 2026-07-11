@@ -1,9 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { updateCart } from '../utils/cartUtils';
 
-const initialState = localStorage.getItem('cart')
-  ? JSON.parse(localStorage.getItem('cart'))
-  : { cartItems: [], shippingAddress: {}, paymentMethod: 'PayPal', couponCode: '', discountPercentage: 0 };
+const getInitialCartState = () => {
+  const userInfo = localStorage.getItem('userInfo')
+    ? JSON.parse(localStorage.getItem('userInfo'))
+    : null;
+  const cartKey = userInfo ? `cart_${userInfo._id}` : 'cart_guest';
+  const stored = localStorage.getItem(cartKey);
+  return stored
+    ? JSON.parse(stored)
+    : { cartItems: [], shippingAddress: {}, paymentMethod: 'PayPal', couponCode: '', discountPercentage: 0 };
+};
+
+const initialState = getInitialCartState();
 
 const cartSlice = createSlice({
   name: 'cart',
@@ -53,9 +62,57 @@ const cartSlice = createSlice({
       state.discountPercentage = 0;
       return updateCart(state);
     },
+    enableBuyNow: (state, action) => {
+      state.isBuyNow = true;
+      state.buyNowItem = action.payload;
+      return updateCart(state);
+    },
+    disableBuyNow: (state) => {
+      state.isBuyNow = false;
+      state.buyNowItem = null;
+      return updateCart(state);
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase('auth/setCredentials', (state, action) => {
+        const user = action.payload;
+        const cartKey = user ? `cart_${user._id}` : 'cart_guest';
+        const stored = localStorage.getItem(cartKey);
+        const userCart = stored
+          ? JSON.parse(stored)
+          : { cartItems: [], shippingAddress: {}, paymentMethod: 'PayPal', couponCode: '', discountPercentage: 0 };
+        
+        state.cartItems = userCart.cartItems || [];
+        state.shippingAddress = userCart.shippingAddress || {};
+        state.paymentMethod = userCart.paymentMethod || 'PayPal';
+        state.couponCode = userCart.couponCode || '';
+        state.discountPercentage = userCart.discountPercentage || 0;
+        state.isBuyNow = false;
+        state.buyNowItem = null;
+      })
+      .addCase('auth/logout', (state) => {
+        state.cartItems = [];
+        state.shippingAddress = {};
+        state.paymentMethod = 'PayPal';
+        state.couponCode = '';
+        state.discountPercentage = 0;
+        state.isBuyNow = false;
+        state.buyNowItem = null;
+      });
   },
 });
 
-export const { addToCart, removeFromCart, saveShippingAddress, savePaymentMethod, clearCartItems, applyCoupon, removeCoupon } = cartSlice.actions;
+export const { 
+  addToCart, 
+  removeFromCart, 
+  saveShippingAddress, 
+  savePaymentMethod, 
+  clearCartItems, 
+  applyCoupon, 
+  removeCoupon,
+  enableBuyNow,
+  disableBuyNow
+} = cartSlice.actions;
 
 export default cartSlice.reducer;

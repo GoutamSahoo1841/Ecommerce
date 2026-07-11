@@ -2,12 +2,12 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { 
-  Search, 
-  Loader2, 
-  Star, 
-  Trash2, 
-  SlidersHorizontal, 
+import {
+  Search,
+  Loader2,
+  Star,
+  Trash2,
+  SlidersHorizontal,
   AlertCircle,
   LayoutGrid,
   List as ListIcon,
@@ -18,7 +18,7 @@ import { useGetProductsQuery, useGetProductCategoriesQuery } from '../slices/pro
 import Product from '../components/Product';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { addToCart } from '../slices/cartSlice';
+import { addToCart, enableBuyNow } from '../slices/cartSlice';
 import { toast } from 'react-toastify';
 
 const SearchScreen = () => {
@@ -71,7 +71,7 @@ const SearchScreen = () => {
     const filterRating = filter.rating || rating;
     const filterPrice = filter.price || price;
     const filterSort = filter.sort || sort;
-    
+
     return `/search?category=${filterCategory}&keyword=${filterKeyword}&price=${filterPrice}&rating=${filterRating}&sort=${filterSort}&pageNumber=${filterPage}`;
   };
 
@@ -83,6 +83,16 @@ const SearchScreen = () => {
     }
     dispatch(addToCart({ ...p, qty: 1 }));
     toast.success(`Added ${p.name} to cart`);
+  };
+
+  const handleBuyNow = (p) => {
+    if (!userInfo) {
+      toast.info('Please sign in to buy items');
+      navigate('/login?redirect=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
+    dispatch(enableBuyNow({ ...p, qty: 1 }));
+    navigate('/shipping');
   };
 
   const categoryCounts = useMemo(() => {
@@ -115,7 +125,7 @@ const SearchScreen = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
+
         {/* Filters Sidebar */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="border-border/50 bg-card rounded-[24px] shadow-sm">
@@ -154,14 +164,14 @@ const SearchScreen = () => {
                     {categories?.map((c) => (
                       <label key={c} className="flex items-center justify-between text-sm text-muted-foreground hover:text-foreground cursor-pointer py-0.5">
                         <div className="flex items-center gap-2.5">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={category === c}
                             onChange={() => {
                               const newCategory = category === c ? 'all' : c;
                               navigate(getFilterUrl({ category: newCategory, page: 1 }));
                             }}
-                            className="h-4 w-4 rounded border-border text-primary focus:ring-primary/25 cursor-pointer accent-primary" 
+                            className="h-4 w-4 rounded border-border text-primary focus:ring-primary/25 cursor-pointer accent-primary"
                           />
                           <span className={`capitalize font-semibold text-xs sm:text-sm ${category === c ? 'text-foreground' : ''}`}>{c}</span>
                         </div>
@@ -176,7 +186,7 @@ const SearchScreen = () => {
               <div className="space-y-3 pt-4 border-t border-border/40">
                 <h4 className="text-sm font-bold text-foreground">Price Range</h4>
                 <div className="pt-2">
-                  <input 
+                  <input
                     type="range"
                     min="0"
                     max="600"
@@ -262,9 +272,8 @@ const SearchScreen = () => {
                               navigate(getFilterUrl({ sort: opt.value, page: 1 }));
                               setSortDropdownOpen(false);
                             }}
-                            className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors ${
-                              sort === opt.value ? 'bg-primary/5 text-primary font-bold' : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
-                            }`}
+                            className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors ${sort === opt.value ? 'bg-primary/5 text-primary font-bold' : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
+                              }`}
                           >
                             {opt.label}
                           </button>
@@ -321,16 +330,15 @@ const SearchScreen = () => {
                       <Card className="overflow-hidden shadow-xs hover:shadow-sm transition-all duration-300 relative group border border-border/50 rounded-2xl flex flex-col sm:flex-row h-auto sm:h-[180px] bg-card">
                         {/* Image */}
                         <div className="relative w-full sm:w-[180px] aspect-square sm:aspect-auto sm:h-full overflow-hidden bg-secondary/30 shrink-0">
-                          <img 
-                            src={p.image} 
-                            alt={p.name} 
-                            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500" 
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                           />
                           {p.badge && (
-                            <span className={`absolute left-3 top-3 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-white ${
-                              p.badge.toLowerCase() === 'sale' ? 'bg-rose-500' :
-                              p.badge.toLowerCase() === 'new' ? 'bg-emerald-500' : 'bg-indigo-600'
-                            }`}>
+                            <span className={`absolute left-3 top-3 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-white ${p.badge.toLowerCase() === 'sale' ? 'bg-rose-500' :
+                                p.badge.toLowerCase() === 'new' ? 'bg-emerald-500' : 'bg-indigo-600'
+                              }`}>
                               {p.badge}
                             </span>
                           )}
@@ -354,24 +362,41 @@ const SearchScreen = () => {
                               {p.description}
                             </p>
                           </div>
-                          
+
                           <div className="flex items-center justify-between border-t border-border/30 pt-3 mt-3">
                             <div className="flex items-center gap-1">
                               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                               <span className="text-xs font-semibold text-foreground">{p.rating}</span>
                               <span className="text-xs text-muted-foreground">({p.numReviews})</span>
                             </div>
-                            
+
                             <div className="flex items-center gap-3">
-                              <Button 
-                                onClick={() => handleAddToCart(p)}
-                                disabled={p.countInStock === 0}
-                                size="sm"
-                                className="rounded-xl text-xs h-8 text-white px-4 font-semibold"
-                              >
-                                <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
-                                {p.countInStock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                              </Button>
+                              {p.countInStock > 0 ? (
+                                <div className="flex gap-2">
+                                  <Button
+                                    onClick={() => handleBuyNow(p)}
+                                    size="sm"
+                                    className="rounded-xl text-[10px] h-8 bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 font-semibold"
+                                  >
+                                    Buy Now
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleAddToCart(p)}
+                                    size="sm"
+                                    className="rounded-xl text-[10px] h-8 text-white px-2.5 font-semibold"
+                                  >
+                                    Add to Cart
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button
+                                  disabled
+                                  size="sm"
+                                  className="rounded-xl text-[10px] h-8 text-muted-foreground px-3 font-semibold"
+                                >
+                                  Out of Stock
+                                </Button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -408,7 +433,7 @@ const SearchScreen = () => {
             </>
           )}
         </div>
-        
+
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { addToCart, removeFromCart, applyCoupon, removeCoupon } from '../slices/cartSlice';
+import { addToCart, removeFromCart, applyCoupon, removeCoupon, disableBuyNow } from '../slices/cartSlice';
 import { useLazyGetCouponByCodeQuery } from '../slices/couponsApiSlice';
 import { 
   ShoppingBag, 
@@ -21,6 +21,10 @@ import { Badge } from '../components/ui/Badge';
 const CartScreen = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(disableBuyNow());
+  }, [dispatch]);
 
   const cart = useSelector((state) => state.cart);
   const { cartItems, couponCode, discountPercentage } = cart;
@@ -52,6 +56,7 @@ const CartScreen = () => {
   };
 
   const checkoutHandler = () => {
+    dispatch(disableBuyNow());
     navigate('/login?redirect=/shipping');
   };
 

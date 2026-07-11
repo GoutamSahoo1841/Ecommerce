@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { useCreateOrderMutation } from '../slices/ordersApiSlice';
-import { clearCartItems } from '../slices/cartSlice';
+import { clearCartItems, disableBuyNow } from '../slices/cartSlice';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -15,6 +15,7 @@ const PlaceOrderScreen = () => {
   const dispatch = useDispatch();
 
   const cart = useSelector((state) => state.cart);
+  const orderItems = cart.isBuyNow && cart.buyNowItem ? [cart.buyNowItem] : cart.cartItems;
 
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
 
@@ -29,7 +30,7 @@ const PlaceOrderScreen = () => {
   const placeOrderHandler = async () => {
     try {
       const res = await createOrder({
-        orderItems: cart.cartItems,
+        orderItems: orderItems,
         shippingAddress: cart.shippingAddress,
         paymentMethod: cart.paymentMethod,
         itemsPrice: cart.itemsPrice,
@@ -39,9 +40,13 @@ const PlaceOrderScreen = () => {
         discountPrice: cart.discountPrice,
         couponCode: cart.couponCode,
       }).unwrap();
-      dispatch(clearCartItems());
+      if (cart.isBuyNow) {
+        dispatch(disableBuyNow());
+      } else {
+        dispatch(clearCartItems());
+      }
       toast.success('Order placed successfully!');
-      navigate(`/order/${res._id}`);
+      navigate(`/order/${res._id}?placed=true`);
     } catch (err) {
       toast.error(err?.data?.message || err.error || 'Failed to place order');
     }
@@ -91,13 +96,13 @@ const PlaceOrderScreen = () => {
                 <ShoppingBag className="h-5 w-5 text-primary" />
                 Order Items
               </h2>
-              {cart.cartItems.length === 0 ? (
+              {orderItems.length === 0 ? (
                 <div className="text-muted-foreground text-sm text-center py-6 bg-secondary/20 rounded-2xl">
                   Your cart is empty
                 </div>
               ) : (
                 <div className="divide-y divide-border/30">
-                  {cart.cartItems.map((item, index) => (
+                  {orderItems.map((item, index) => (
                     <div key={index} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
                       <div className="w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-secondary/30">
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
@@ -178,7 +183,7 @@ const PlaceOrderScreen = () => {
 
               <Button
                 type="button"
-                disabled={cart.cartItems.length === 0 || isLoading}
+                disabled={orderItems.length === 0 || isLoading}
                 onClick={placeOrderHandler}
                 className="w-full shadow-md py-6 rounded-xl font-bold text-white bg-primary hover:bg-primary/95 text-base h-12"
               >

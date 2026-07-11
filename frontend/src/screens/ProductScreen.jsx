@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
+import {
   useGetProductDetailsQuery,
   useCreateProductReviewMutation,
   useGetRelatedProductsQuery,
 } from '../slices/productsApiSlice';
-import { addToCart } from '../slices/cartSlice';
+import { addToCart, enableBuyNow } from '../slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../slices/wishlistSlice';
 import { addRecentlyViewed } from '../slices/recentlyViewedSlice';
 import Meta from '../components/Meta';
@@ -14,17 +14,18 @@ import Product from '../components/Product';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Card, CardContent } from '../components/ui/Card';
-import { 
-  ArrowLeft, 
-  Heart, 
-  ShoppingBag, 
-  Star, 
-  Check, 
-  Plus, 
+import {
+  ArrowLeft,
+  Heart,
+  ShoppingBag,
+  Star,
+  Check,
+  Plus,
   Minus,
   MessageSquare,
   Sparkles,
-  Info
+  Info,
+  CreditCard
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -93,7 +94,16 @@ const ProductScreen = () => {
     }
     dispatch(addToCart({ ...product, qty, selectedColor, selectedSize }));
     toast.success(`Added ${qty} ${product.name} to cart`);
-    navigate('/cart');
+  };
+
+  const buyNowHandler = () => {
+    if (!userInfo) {
+      toast.info('Please sign in to buy items');
+      navigate('/login?redirect=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
+    dispatch(enableBuyNow({ ...product, qty, selectedColor, selectedSize }));
+    navigate('/shipping');
   };
 
   const submitHandler = async (e) => {
@@ -143,16 +153,16 @@ const ProductScreen = () => {
 
   const displayImage = activeImage || product.image;
   const allImages = [product.image, ...(product.images || [])];
-  
+
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
-  const discountPercentage = hasDiscount 
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+  const discountPercentage = hasDiscount
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
   return (
     <div className="space-y-12">
       <Meta title={product.name} description={product.description} />
-      
+
       {/* Back Button */}
       <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
         <ArrowLeft className="w-4 h-4" />
@@ -163,10 +173,10 @@ const ProductScreen = () => {
         {/* Product Image Gallery */}
         <div className="lg:col-span-6 flex flex-col gap-4">
           <div className="rounded-3xl overflow-hidden bg-card border border-border/50 shadow-md aspect-square flex items-center justify-center p-8 relative">
-            <img 
-              src={displayImage} 
-              alt={product.name} 
-              className="w-full h-full object-cover rounded-2xl select-none" 
+            <img
+              src={displayImage}
+              alt={product.name}
+              className="w-full h-full object-cover rounded-2xl select-none"
             />
             {hasDiscount && (
               <Badge variant="destructive" className="absolute top-6 left-6 shadow-md border-none font-bold py-1 bg-rose-500 text-white">
@@ -180,11 +190,10 @@ const ProductScreen = () => {
                 <button
                   key={index}
                   onClick={() => setActiveImage(img)}
-                  className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                    displayImage === img 
-                      ? 'border-primary shadow-sm' 
+                  className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${displayImage === img
+                      ? 'border-primary shadow-sm'
                       : 'border-transparent opacity-70 hover:opacity-100 bg-secondary/30'
-                  }`}
+                    }`}
                 >
                   <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -200,11 +209,10 @@ const ProductScreen = () => {
               <Badge variant="secondary" className="bg-primary/10 text-primary border-none py-1">
                 {product.brand}
               </Badge>
-              <button 
+              <button
                 onClick={toggleWishlistHandler}
-                className={`p-2.5 rounded-full border border-border/50 transition-colors bg-card hover:bg-secondary/40 shadow-sm focus:outline-none ${
-                  existInWishlist ? 'text-rose-500' : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className={`p-2.5 rounded-full border border-border/50 transition-colors bg-card hover:bg-secondary/40 shadow-sm focus:outline-none ${existInWishlist ? 'text-rose-500' : 'text-muted-foreground hover:text-foreground'
+                  }`}
                 title={existInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
               >
                 <Heart className={`w-5 h-5 ${existInWishlist ? 'fill-current' : ''}`} />
@@ -249,11 +257,10 @@ const ProductScreen = () => {
                       key={c}
                       type="button"
                       onClick={() => setSelectedColor(c)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                        selectedColor === c
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${selectedColor === c
                           ? 'bg-primary text-white border-primary shadow-sm shadow-primary/20'
                           : 'bg-card border-border text-muted-foreground hover:text-foreground'
-                      }`}
+                        }`}
                     >
                       {c}
                     </button>
@@ -274,11 +281,10 @@ const ProductScreen = () => {
                       key={s}
                       type="button"
                       onClick={() => setSelectedSize(s)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                        selectedSize === s
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${selectedSize === s
                           ? 'bg-primary text-white border-primary shadow-sm shadow-primary/20'
                           : 'bg-card border-border text-muted-foreground hover:text-foreground'
-                      }`}
+                        }`}
                     >
                       {s}
                     </button>
@@ -293,9 +299,8 @@ const ProductScreen = () => {
             <CardContent className="p-6 space-y-6">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Availability</span>
-                <span className={`font-bold flex items-center gap-1.5 ${
-                  product.countInStock > 0 ? 'text-emerald-500' : 'text-rose-500'
-                }`}>
+                <span className={`font-bold flex items-center gap-1.5 ${product.countInStock > 0 ? 'text-emerald-500' : 'text-rose-500'
+                  }`}>
                   {product.countInStock > 0 ? (
                     <>
                       <Check className="h-4 w-4" />
@@ -332,14 +337,32 @@ const ProductScreen = () => {
                 </div>
               )}
 
-              <Button 
-                disabled={product.countInStock === 0}
-                className="w-full shadow-md py-6 rounded-xl font-bold flex items-center justify-center gap-2 text-white bg-primary hover:bg-primary/95 text-base h-12"
-                onClick={addToCartHandler}
-              >
-                <ShoppingBag className="h-5 w-5" />
-                Add To Cart
-              </Button>
+              {product.countInStock > 0 ? (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    className="flex-1 shadow-md py-6 rounded-xl font-bold flex items-center justify-center gap-2 text-white bg-indigo-600 hover:bg-indigo-700 text-base h-12"
+                    onClick={buyNowHandler}
+                  >
+                    <CreditCard className="h-5 w-5" />
+                    Buy Now
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1 shadow-sm py-6 rounded-xl font-bold flex items-center justify-center gap-2 text-foreground border-border hover:bg-secondary/50 text-base h-12"
+                    onClick={addToCartHandler}
+                  >
+                    <ShoppingBag className="h-5 w-5" />
+                    Add To Cart
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  disabled
+                  className="w-full shadow-md py-6 rounded-xl font-bold flex items-center justify-center gap-2 text-muted-foreground bg-secondary text-base h-12"
+                >
+                  Out of Stock
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -350,9 +373,8 @@ const ProductScreen = () => {
         <div className="flex border-b border-border/50 gap-6">
           <button
             onClick={() => setActiveTab('description')}
-            className={`pb-4 text-base font-bold transition-all relative ${
-              activeTab === 'description' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-            }`}
+            className={`pb-4 text-base font-bold transition-all relative ${activeTab === 'description' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+              }`}
           >
             Product Details
             {activeTab === 'description' && (
@@ -361,9 +383,8 @@ const ProductScreen = () => {
           </button>
           <button
             onClick={() => setActiveTab('reviews')}
-            className={`pb-4 text-base font-bold transition-all relative flex items-center gap-1.5 ${
-              activeTab === 'reviews' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-            }`}
+            className={`pb-4 text-base font-bold transition-all relative flex items-center gap-1.5 ${activeTab === 'reviews' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+              }`}
           >
             <span>Reviews</span>
             <Badge variant="secondary" className="px-2 py-0.5 text-[10px] bg-secondary text-muted-foreground">
@@ -405,11 +426,10 @@ const ProductScreen = () => {
                         <strong className="text-foreground text-sm sm:text-base">{review.name}</strong>
                         <div className="flex items-center gap-0.5">
                           {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              className={`h-3.5 w-3.5 ${
-                                i < review.rating ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/20'
-                              }`} 
+                            <Star
+                              key={i}
+                              className={`h-3.5 w-3.5 ${i < review.rating ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/20'
+                                }`}
                             />
                           ))}
                         </div>
@@ -429,21 +449,21 @@ const ProductScreen = () => {
                   <Sparkles className="h-5 w-5 text-primary" />
                   Write a Customer Review
                 </h3>
-                
+
                 {loadingProductReview && (
                   <div className="flex justify-center items-center py-2">
                     <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
                   </div>
                 )}
-                
+
                 {userInfo ? (
                   <form onSubmit={submitHandler} className="space-y-5">
                     <div className="space-y-2">
                       <label htmlFor="rating" className="block text-xs font-semibold text-muted-foreground">Rating</label>
-                      <select 
+                      <select
                         id="rating"
                         required
-                        value={rating} 
+                        value={rating}
                         onChange={(e) => setRating(Number(e.target.value))}
                         className="w-full bg-card border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
                       >
@@ -456,11 +476,11 @@ const ProductScreen = () => {
                     </div>
                     <div className="space-y-2">
                       <label htmlFor="comment" className="block text-xs font-semibold text-muted-foreground">Comment</label>
-                      <textarea 
+                      <textarea
                         id="comment"
                         required
-                        rows="3" 
-                        value={comment} 
+                        rows="3"
+                        value={comment}
                         onChange={(e) => setComment(e.target.value)}
                         placeholder="Write your review here..."
                         className="w-full bg-card border border-border/50 rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
