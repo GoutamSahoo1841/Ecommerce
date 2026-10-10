@@ -6,8 +6,8 @@ import {
   useGetUserDetailsQuery, 
   useUpdateUserMutation 
 } from '../../slices/usersApiSlice';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 
 const UserEditScreen = () => {
   const { id: userId } = useParams();

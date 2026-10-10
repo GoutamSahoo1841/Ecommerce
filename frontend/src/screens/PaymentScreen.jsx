@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import FormContainer from '../components/FormContainer';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { savePaymentMethod } from '../slices/cartSlice';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 
 const PaymentScreen = () => {
   const [paymentMethod, setPaymentMethod] = useState('PayPal');

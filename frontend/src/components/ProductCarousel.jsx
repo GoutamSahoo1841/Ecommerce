@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useGetTopProductsQuery } from '../slices/productsApiSlice';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { Button } from './ui/Button';
-import { Badge } from './ui/Badge';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ProductCarousel = () => {

@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { useResetPasswordMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
 import FormContainer from '../components/FormContainer';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 
 const ResetPasswordScreen = () => {
   const [password, setPassword] = useState('');

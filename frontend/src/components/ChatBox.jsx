@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
 import { BASE_URL } from '../constants';
 import { MessageSquare, Send, X } from 'lucide-react';
-import { Button } from './ui/Button';
+import { Button } from './ui/button';
 
 const ENDPOINT = BASE_URL || '/';
 

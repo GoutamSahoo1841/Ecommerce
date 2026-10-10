@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import FormContainer from '../components/FormContainer';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { saveShippingAddress } from '../slices/cartSlice';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { useGetMyOrdersQuery } from '../slices/ordersApiSlice';
 import { useGetUserProfileQuery, useProfileMutation } from '../slices/usersApiSlice';
 import { MapPin, Plus, Loader2, Check } from 'lucide-react';

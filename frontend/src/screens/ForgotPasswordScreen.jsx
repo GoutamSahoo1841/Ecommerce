@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useForgotPasswordMutation } from '../slices/usersApiSlice';
 import FormContainer from '../components/FormContainer';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState('');

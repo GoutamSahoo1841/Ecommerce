@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRegisterMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 

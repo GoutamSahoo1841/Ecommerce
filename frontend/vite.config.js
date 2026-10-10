@@ -11,9 +11,12 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), tailwindcss()],
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src'),
-      },
+      alias: [
+        { find: '@/components/ui/Card', replacement: path.resolve(__dirname, './src/components/ui/card.jsx') },
+        { find: '@/components/ui/Button', replacement: path.resolve(__dirname, './src/components/ui/button.jsx') },
+        { find: '@/components/ui/Badge', replacement: path.resolve(__dirname, './src/components/ui/badge.jsx') },
+        { find: '@', replacement: path.resolve(__dirname, './src') },
+      ],
     },
     server: {
       proxy: {

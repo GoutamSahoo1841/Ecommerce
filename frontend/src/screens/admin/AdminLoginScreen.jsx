@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import FormContainer from '../../components/FormContainer';
 import { useAdminLoginMutation } from '../../slices/usersApiSlice';
 import { setCredentials } from '../../slices/authSlice';
-import { Button } from '../../components/ui/Button';
+import { Button } from '../../components/ui/button';
 
 const AdminLoginScreen = () => {
   const [email, setEmail] = useState('');

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { useLoginMutation, useAdminLoginMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { User, ShieldCheck, Mail, Lock, Eye, EyeOff, ArrowRight, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { fadeInUp, staggerContainer, staggerItem } from '../lib/animations';

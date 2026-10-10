@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { useCreateOrderMutation } from '../slices/ordersApiSlice';
 import { clearCartItems, disableBuyNow } from '../slices/cartSlice';
-import { Button } from '../components/ui/Button';
-import { Card, CardContent } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/button';
+import { Card, CardContent } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
 import { ShoppingBag, MapPin, CreditCard, Tag } from 'lucide-react';
 import { toast } from 'react-toastify';
 

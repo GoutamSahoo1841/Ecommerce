@@ -20,8 +20,8 @@ import {
   useUploadProductImageMutation,
   useUploadMultipleProductImagesMutation
 } from '../../slices/productsApiSlice';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 
 const ProductEditScreen = () => {
   const { id: productId } = useParams();

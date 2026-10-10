@@ -5,7 +5,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { Card, CardContent } from '../../components/ui/Card';
+import { Card, CardContent } from '../../components/ui/card';
 import { 
   DollarSign, ShoppingCart, Users, Eye, ArrowUpRight, TrendingUp, TrendingDown,
   LayoutDashboard, Package, MessageSquare
