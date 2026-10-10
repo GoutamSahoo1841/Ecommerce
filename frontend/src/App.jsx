@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { io } from 'socket.io-client';
+import { BASE_URL } from './constants';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatBox from './components/ChatBox';
@@ -22,7 +23,7 @@ const App = () => {
     // Connect to socket if user is admin
     if (userInfo && userInfo.isAdmin) {
       // Create socket connection
-      socket = io('/');
+      socket = io(BASE_URL || '/');
 
       // Join admin room
       socket.emit('join_admin');

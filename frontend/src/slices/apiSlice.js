@@ -20,10 +20,10 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     // Attempt to get a new access token using the refresh token
     const refreshToken = api.getState().auth.userInfo?.refreshToken;
     if (refreshToken) {
-      // Use baseQuery to call /users/refresh endpoint
+      // Use baseQuery to call /api/users/refresh endpoint
       const refreshResult = await baseQuery(
         {
-          url: '/users/refresh',
+          url: '/api/users/refresh',
           method: 'POST',
           body: { refreshToken },
         },

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
+import { BASE_URL } from '../../constants';
 import { MessageSquare, Send, User } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 
-const ENDPOINT = '/';
+const ENDPOINT = BASE_URL || '/';
 
 const AdminChatScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);

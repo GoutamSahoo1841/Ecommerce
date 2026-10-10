@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
+import { BASE_URL } from '../constants';
 import { MessageSquare, Send, X } from 'lucide-react';
 import { Button } from './ui/Button';
 
-const ENDPOINT = '/';
+const ENDPOINT = BASE_URL || '/';
 
 const ChatBox = () => {
   const { userInfo } = useSelector((state) => state.auth);
