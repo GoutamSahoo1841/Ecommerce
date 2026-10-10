@@ -7,7 +7,7 @@ import {
   Trash2, 
   Loader2, 
   Sparkles, 
-  DollarSign, 
+  IndianRupee, 
   Layers, 
   Tag, 
   Package, 
@@ -201,7 +201,7 @@ const ProductEditScreen = () => {
                       type="text"
                       id="brand"
                       required
-                      placeholder="e.g. NovaDecor"
+                      placeholder="e.g. ShopSphere"
                       value={brand}
                       onChange={(e) => setBrand(e.target.value)}
                       className="w-full bg-muted/20 border border-border/80 rounded-xl px-4 py-2.5 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
@@ -288,7 +288,7 @@ const ProductEditScreen = () => {
               <Card className="border-border/50 bg-card/30 backdrop-blur-md">
                 <CardHeader>
                   <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-primary" />
+                    <IndianRupee className="h-5 w-5 text-primary" />
                     Pricing & Inventory
                   </CardTitle>
                   <CardDescription>Manage selling prices, discount targets, and count in stock</CardDescription>
@@ -297,7 +297,7 @@ const ProductEditScreen = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="price" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                        Sale Price ($)
+                        Sale Price (₹)
                       </label>
                       <input
                         type="number"
@@ -313,7 +313,7 @@ const ProductEditScreen = () => {
                     </div>
                     <div>
                       <label htmlFor="originalPrice" className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                        Original Price ($)
+                        Original Price (₹)
                       </label>
                       <input
                         type="number"

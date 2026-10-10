@@ -52,12 +52,13 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 
 // Generate and hash password token
 userSchema.methods.getResetPasswordToken = function () {
-  // Generate token
+  // Generate token-> crypto
   const resetToken = crypto.randomBytes(20).toString('hex');
 
   // Hash token and set to resetPasswordToken field
   this.resetPasswordToken = crypto
     .createHash('sha256')
+    
     .update(resetToken)
     .digest('hex');
 
@@ -67,9 +68,9 @@ userSchema.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
-    next();
+    return;
   }
 
   const salt = await bcrypt.genSalt(10);

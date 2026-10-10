@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
 import User from '../models/userModel.js';
 import Product from '../models/productModel.js';
+import { getCache, setCache, clearCachePattern } from '../config/redis.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -18,12 +19,22 @@ const addOrderItems = asyncHandler(async (req, res) => {
     couponCode,
   } = req.body;
 
-  if (orderItems && orderItems.length === 0) {
+  if (!orderItems || orderItems.length === 0) {
     res.status(400);
     throw new Error('No order items');
   } else {
+    const dbOrderItems = orderItems.map((item) => ({
+      name: item.name,
+      qty: Number(item.qty),
+      image: item.image,
+      price: Number(item.price),
+      product: item.product || item._id,
+      selectedColor: item.selectedColor,
+      selectedSize: item.selectedSize,
+    }));
+
     const order = new Order({
-      orderItems,
+      orderItems: dbOrderItems,
       user: req.user._id,
       shippingAddress,
       paymentMethod,
@@ -35,6 +46,9 @@ const addOrderItems = asyncHandler(async (req, res) => {
     });
 
     const createdOrder = await order.save();
+
+    // Clear dashboard statistics cache since there's a new order
+    await clearCachePattern('dashboard:*');
 
     // Emit socket event to admin room
     const io = req.app.get('io');
@@ -81,6 +95,9 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
 
     const updatedOrder = await order.save();
 
+    // Clear dashboard stats cache on payment status changes
+    await clearCachePattern('dashboard:*');
+
     res.json(updatedOrder);
   } else {
     res.status(404);
@@ -99,6 +116,9 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
     order.deliveredAt = Date.now();
 
     const updatedOrder = await order.save();
+
+    // Clear dashboard stats cache on delivery status changes
+    await clearCachePattern('dashboard:*');
 
     res.json(updatedOrder);
   } else {
@@ -127,6 +147,12 @@ const getOrders = asyncHandler(async (req, res) => {
 // @route   GET /api/orders/dashboard
 // @access  Private/Admin
 const getDashboardData = asyncHandler(async (req, res) => {
+  const cacheKey = 'dashboard:stats';
+  const cachedStats = await getCache(cacheKey);
+  if (cachedStats) {
+    return res.json(cachedStats);
+  }
+
   const orders = await Order.find({});
   const users = await User.find({});
   const products = await Product.find({});
@@ -143,7 +169,7 @@ const getDashboardData = asyncHandler(async (req, res) => {
     { $sort: { _id: 1 } },
   ]);
 
-  res.json({
+  const dashboardData = {
     orders,
     users,
     products,
@@ -152,7 +178,11 @@ const getDashboardData = asyncHandler(async (req, res) => {
     totalUsers: users.length,
     totalProducts: products.length,
     salesData,
-  });
+  };
+
+  await setCache(cacheKey, dashboardData, 300); // 5 minutes cache
+
+  res.json(dashboardData);
 });
 
 export {

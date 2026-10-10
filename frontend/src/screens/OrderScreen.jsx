@@ -280,7 +280,7 @@ const OrderScreen = () => {
                         )}
                       </div>
                       <div className="text-sm font-bold text-foreground whitespace-nowrap">
-                        {item.qty} x ${item.price} = ${(item.qty * item.price).toFixed(2)}
+                        {item.qty} x ₹{item.price} = ₹{(item.qty * item.price).toFixed(2)}
                       </div>
                     </div>
                   ))}
@@ -300,23 +300,23 @@ const OrderScreen = () => {
                 <div className="flex justify-between">
                   <span>Items</span>
                   <span className="font-semibold text-foreground">
-                    ${order.itemsPrice || (order.totalPrice - order.shippingPrice - order.taxPrice).toFixed(2)}
+                    ₹{order.itemsPrice || (order.totalPrice - order.shippingPrice - order.taxPrice).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span className="font-semibold text-foreground">${order.shippingPrice}</span>
+                  <span className="font-semibold text-foreground">₹{order.shippingPrice}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Tax</span>
-                  <span className="font-semibold text-foreground">${order.taxPrice}</span>
+                  <span className="font-semibold text-foreground">₹{order.taxPrice}</span>
                 </div>
                 
                 <div className="h-px bg-border/50" />
                 
                 <div className="flex justify-between items-center text-base font-bold text-foreground">
                   <span>Total</span>
-                  <span className="text-xl text-primary">${order.totalPrice}</span>
+                  <span className="text-xl text-primary">₹{order.totalPrice}</span>
                 </div>
               </div>
 

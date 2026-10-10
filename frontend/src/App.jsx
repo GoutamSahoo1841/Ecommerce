@@ -22,15 +22,14 @@ const App = () => {
     // Connect to socket if user is admin
     if (userInfo && userInfo.isAdmin) {
       // Create socket connection
-      // For local development it connects to the same host
-      socket = io(window.location.origin === 'http://localhost:5173' ? 'http://localhost:5000' : '/');
+      socket = io('/');
 
       // Join admin room
       socket.emit('join_admin');
 
       // Listen for new orders
       socket.on('newOrder', (order) => {
-        toast.info(`🔔 New Order Alert! Order ID: ${order._id} for $${order.totalPrice}`, {
+        toast.info(`🔔 New Order Alert! Order ID: ${order._id} for ₹${order.totalPrice}`, {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,

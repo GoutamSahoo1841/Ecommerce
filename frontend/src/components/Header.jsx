@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useLogoutMutation } from '../slices/usersApiSlice';
-import { logout } from '../slices/authSlice';
-import { useGetProductCategoriesQuery } from '../slices/productsApiSlice';
-import SearchModal from './SearchModal';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
+  Search,
   ShoppingBag,
   Heart,
   User,
   Menu,
-  X,
   Sun,
   Moon,
   ChevronDown,
@@ -20,10 +17,32 @@ import {
   Users,
   ShoppingCart,
   MessageSquare,
-  Search
+  Command,
+  Sparkles,
 } from 'lucide-react';
-import { Button } from './ui/Button';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from 'next-themes';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useLogoutMutation } from '../slices/usersApiSlice';
+import { logout } from '../slices/authSlice';
+import { useGetProductCategoriesQuery } from '../slices/productsApiSlice';
+import SearchModal from './SearchModal';
+import { CartPreview } from './CartPreview';
+
+const navLinks = [
+  { to: '/', label: 'Home' },
+  { to: '/search', label: 'Products' },
+  { to: '/categories', label: 'Categories' },
+  { to: '/deals', label: 'Deals' },
+];
 
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart);
@@ -31,13 +50,12 @@ const Header = () => {
   const { userInfo } = useSelector((state) => state.auth);
 
   const [isScrolled, setIsScrolled] = useState(false);
-
-
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const [categoriesHover, setCategoriesHover] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
+  const { theme, setTheme } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -46,32 +64,22 @@ const Header = () => {
   const { data: categories } = useGetProductCategoriesQuery();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    setMounted(true);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  // Global Ctrl+K / Cmd+K search shortcut listener
+  // Global Cmd+K / Ctrl+K shortcut
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setSearchModalOpen((prev) => !prev);
+        setSearchModalOpen((open) => !open);
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const logoutHandler = async () => {
@@ -85,325 +93,293 @@ const Header = () => {
   };
 
   const cartCount = cartItems.reduce((a, c) => a + c.qty, 0);
-
-  const navLinks = [
-    { to: '/', label: 'Home' },
-    { to: '/search', label: 'Products' },
-    { to: '/categories', label: 'Categories' },
-    { to: '/deals', label: 'Deals' },
-  ];
+  const wishlistCount = wishlistItems ? wishlistItems.length : 0;
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm border-b border-border/40 py-2.5' : 'bg-background/80 backdrop-blur-md py-4 border-b border-border/40'
-        }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-12">
-
-            {/* Left side: Logo or Admin Title */}
-            <div className="flex-1 md:flex-initial">
+      <motion.header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled ? 'glass shadow-sm py-2' : 'bg-background/80 backdrop-blur-md py-3 border-b border-border/40'
+        }`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-12 items-center justify-between gap-4">
+            {/* Logo or Admin Header */}
+            <div className="flex items-center gap-2">
               {pathname.startsWith('/admin') ? (
-                <span 
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="text-xl font-bold tracking-tight text-foreground cursor-pointer hover:text-primary transition-colors select-none"
-                >
-                  {pathname.startsWith('/admin/dashboard') ? 'Dashboard' :
-                   pathname.startsWith('/admin/productlist') || pathname.includes('/admin/product') ? 'Products' :
-                   pathname.startsWith('/admin/orderlist') || pathname.includes('/admin/order') ? 'Orders' :
-                   pathname.startsWith('/admin/userlist') || pathname.includes('/admin/user') ? 'Customers' :
-                   pathname.startsWith('/admin/chat') ? 'Live Chat' : 'Dashboard'}
+                <span className="text-xl font-bold tracking-tight text-foreground select-none">
+                  {pathname.startsWith('/admin/dashboard')
+                    ? 'Admin Dashboard'
+                    : pathname.startsWith('/admin/productlist')
+                    ? 'Products Management'
+                    : pathname.startsWith('/admin/orderlist')
+                    ? 'Orders Management'
+                    : pathname.startsWith('/admin/userlist')
+                    ? 'Users Management'
+                    : pathname.startsWith('/admin/chat')
+                    ? 'Live Chat Support'
+                    : 'Admin Portal'}
                 </span>
               ) : (
                 <Link to="/" className="flex items-center gap-2">
-                  <span className="text-xl font-bold tracking-tight text-foreground transition-colors hover:text-primary">
-                    NOVA
-                  </span>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="text-xl font-bold tracking-tight text-foreground"
+                  >
+                    ShopSphere
+                  </motion.div>
                 </Link>
               )}
             </div>
 
-            {/* Middle section: Navigation Links */}
+            {/* Desktop Nav */}
             {!pathname.startsWith('/admin') && (
-              <nav className="hidden md:flex items-center gap-1">
+              <nav className="hidden items-center gap-1 md:flex">
                 {navLinks.map((link) => {
-                  // Determine active status
-                  const isActive = (link.to === '/' && pathname === '/') ||
+                  const isActive =
+                    (link.to === '/' && pathname === '/') ||
                     (link.to === '/search' && (pathname.startsWith('/search') || pathname.startsWith('/product'))) ||
                     (link.to === '/categories' && pathname.startsWith('/categories')) ||
                     (link.to === '/deals' && pathname.startsWith('/deals'));
 
-                  if (link.label === 'Categories') {
-                    return (
-                      <div
-                        key={link.to}
-                        className="relative"
-                        onMouseEnter={() => setCategoriesHover(true)}
-                        onMouseLeave={() => setCategoriesHover(false)}
-                      >
-                        <Link
-                          to={link.to}
-                          className={`relative px-4 py-2 text-sm transition-all duration-200 flex items-center gap-1.5 ${isActive
-                              ? 'text-foreground font-semibold'
-                              : 'text-muted-foreground hover:text-foreground font-medium'
-                            }`}
-                        >
-                          <span>{link.label}</span>
-                          <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${categoriesHover ? 'rotate-180' : ''}`} />
-                          {isActive && (
-                            <motion.div
-                              layoutId="nav-indicator"
-                              className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-primary"
-                              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                            />
-                          )}
-                        </Link>
-
-                        {/* Dropdown Menu */}
-                        <AnimatePresence>
-                          {categoriesHover && categories && categories.length > 0 && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 10 }}
-                              className="absolute left-0 mt-1 w-48 rounded-xl bg-card border border-border shadow-xl py-2 z-50 overflow-hidden"
-                            >
-                              {categories.map((c) => (
-                                <Link
-                                  key={c}
-                                  to={`/search?category=${c}`}
-                                  className="block px-4 py-2.5 text-sm text-foreground hover:bg-secondary hover:text-primary transition-colors capitalize font-medium"
-                                  onClick={() => setCategoriesHover(false)}
-                                >
-                                  {c}
-                                </Link>
-                              ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    );
-                  }
-
                   return (
-                    <Link
-                      key={link.to}
-                      to={link.to}
-                      className={`relative px-4 py-2 text-sm transition-all duration-200 ${isActive
-                          ? 'text-foreground font-semibold'
-                          : 'text-muted-foreground hover:text-foreground font-medium'
+                    <Link key={link.to} to={link.to}>
+                      <motion.div
+                        className={`relative px-4 py-2 text-sm font-medium transition-colors ${
+                          isActive ? 'text-foreground font-semibold' : 'text-muted-foreground hover:text-foreground'
                         }`}
-                    >
-                      <span>{link.label}</span>
-                      {isActive && (
-                        <motion.div
-                          layoutId="nav-indicator"
-                          className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-primary"
-                          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        />
-                      )}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {link.label}
+                        {isActive && (
+                          <motion.div
+                            className="absolute bottom-0 left-1/2 h-0.5 w-4 -translate-x-1/2 rounded-full bg-primary"
+                            layoutId="nav-indicator"
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                          />
+                        )}
+                      </motion.div>
                     </Link>
                   );
                 })}
               </nav>
             )}
 
-            {/* Right side: Actions */}
-            <div className="flex-1 md:flex-initial flex items-center justify-end gap-1.5">
+            {/* Actions */}
+            <div className="flex items-center gap-1">
               {pathname.startsWith('/admin') ? (
-                // Only show View Store option on Admin Dashboard
                 <Link to="/">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full px-3.5 text-xs font-semibold border-border/80 hover:bg-secondary hover:text-primary transition-all h-8.5"
-                  >
-                    View Store
+                  <Button variant="outline" size="sm" className="rounded-full">
+                    View Storefront
                   </Button>
                 </Link>
               ) : (
-                // Standard customer storefront header icons and options
                 <>
-                  {/* Search button with keyboard shortcut */}
+                  {/* Search Button */}
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setSearchModalOpen(true)}
-                    className="relative text-muted-foreground hover:text-foreground rounded-full hover:bg-secondary/60 h-9 w-9"
+                    className="relative"
                   >
                     <Search className="h-5 w-5" />
                     <span className="sr-only">Search</span>
-                    <kbd className="pointer-events-none absolute -bottom-1 -right-0.5 hidden rounded border border-border bg-muted/90 px-1 text-[8px] font-medium text-muted-foreground sm:block font-mono">
+                    <kbd className="pointer-events-none absolute -bottom-1 right-0 hidden rounded border border-border bg-muted px-1 text-[10px] font-medium text-muted-foreground sm:block font-mono">
                       ⌘K
                     </kbd>
                   </Button>
 
                   {/* Theme Toggle */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                    className="text-muted-foreground hover:text-foreground rounded-full hover:bg-secondary/60 h-9 w-9"
-                  >
-                    {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                  </Button>
+                  {mounted && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    >
+                      <AnimatePresence mode="wait" initial={false}>
+                        <motion.div
+                          key={theme}
+                          initial={{ y: -20, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: 20, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {theme === 'dark' ? (
+                            <Sun className="h-5 w-5" />
+                          ) : (
+                            <Moon className="h-5 w-5" />
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+                      <span className="sr-only">Toggle theme</span>
+                    </Button>
+                  )}
 
                   {/* Wishlist */}
                   <Link to="/wishlist">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="relative text-muted-foreground hover:text-foreground rounded-full hover:bg-secondary/60 h-9 w-9"
-                    >
+                    <Button variant="ghost" size="icon" className="relative">
                       <Heart className="h-5 w-5" />
-                      {wishlistItems && wishlistItems.length > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm">
-                          {wishlistItems.length}
-                        </span>
+                      {wishlistCount > 0 && (
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground"
+                        >
+                          {wishlistCount}
+                        </motion.span>
                       )}
+                      <span className="sr-only">Wishlist</span>
                     </Button>
                   </Link>
 
-                  {/* Cart */}
-                  <Link to="/cart">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="relative text-muted-foreground hover:text-foreground rounded-full hover:bg-secondary/60 h-9 w-9"
-                    >
-                      <ShoppingBag className="h-5 w-5" />
-                      {cartCount > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white shadow-sm">
-                          {cartCount}
-                        </span>
-                      )}
-                    </Button>
-                  </Link>
-
-                  {/* Return back option for Admin User */}
-                  {userInfo && userInfo.isAdmin && (
-                    <Link to="/admin/dashboard" className="ml-1">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full px-3.5 text-xs font-semibold border-border/80 hover:bg-secondary hover:text-primary transition-all h-8.5"
+                  {/* Cart Drawer Trigger */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative"
+                    onClick={() => setCartOpen(true)}
+                  >
+                    <ShoppingBag className="h-5 w-5" />
+                    {cartCount > 0 && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground"
                       >
-                        Admin Dashboard
-                      </Button>
+                        {cartCount}
+                      </motion.span>
+                    )}
+                    <span className="sr-only">Cart</span>
+                  </Button>
+
+                  {/* User Dropdown / Auth Link */}
+                  {userInfo ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="relative rounded-full">
+                          <User className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel>
+                          <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{userInfo.name}</p>
+                            <p className="text-xs leading-none text-muted-foreground">{userInfo.email}</p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => navigate('/profile')}>
+                          <User className="mr-2 h-4 w-4" />
+                          Profile
+                        </DropdownMenuItem>
+                        {userInfo.isAdmin && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel className="text-xs text-muted-foreground uppercase">Admin</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => navigate('/admin/dashboard')}>
+                              <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
+                              Dashboard
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate('/admin/productlist')}>
+                              <Package className="mr-2 h-4 w-4 text-primary" />
+                              Products
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate('/admin/orderlist')}>
+                              <ShoppingCart className="mr-2 h-4 w-4 text-primary" />
+                              Orders
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate('/admin/userlist')}>
+                              <Users className="mr-2 h-4 w-4 text-primary" />
+                              Users
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate('/admin/chat')}>
+                              <MessageSquare className="mr-2 h-4 w-4 text-primary" />
+                              Live Chat
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={logoutHandler} className="text-destructive">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Log out
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <Link to="/login" className="hidden sm:block">
+                      <Button size="sm">Sign In</Button>
                     </Link>
                   )}
 
-                  {/* User Profile Link */}
-                  <Link to={userInfo ? '/profile' : '/login'}>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-foreground rounded-full hover:bg-secondary/60 h-9 w-9"
-                    >
-                      <User className="h-5 w-5" />
-                    </Button>
-                  </Link>
+                  {/* Mobile Menu Sheet */}
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="ghost" size="icon" className="md:hidden">
+                        <Menu className="h-5 w-5" />
+                        <span className="sr-only">Menu</span>
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                      <nav className="mt-8 flex flex-col gap-4">
+                        {navLinks.map((link) => (
+                          <Link
+                            key={link.to}
+                            to={link.to}
+                            className={`text-lg font-medium transition-colors ${
+                              pathname === link.to ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            {link.label}
+                          </Link>
+                        ))}
+                        {userInfo ? (
+                          <>
+                            <Link
+                              to="/profile"
+                              className="text-lg font-medium text-muted-foreground hover:text-foreground"
+                            >
+                              Profile ({userInfo.name})
+                            </Link>
+                            {userInfo.isAdmin && (
+                              <Link
+                                to="/admin/dashboard"
+                                className="text-lg font-semibold text-primary"
+                              >
+                                Admin Dashboard
+                              </Link>
+                            )}
+                            <button
+                              onClick={logoutHandler}
+                              className="text-lg font-medium text-destructive text-left"
+                            >
+                              Log out
+                            </button>
+                          </>
+                        ) : (
+                          <Link to="/login" className="text-lg font-semibold text-primary">
+                            Sign In / Register
+                          </Link>
+                        )}
+                      </nav>
+                    </SheetContent>
+                  </Sheet>
                 </>
-              )}
-
-              {/* Mobile Menu Toggle */}
-              {!pathname.startsWith('/admin') && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="md:hidden text-muted-foreground hover:text-foreground rounded-full ml-1 h-9 w-9 hover:bg-secondary/60"
-                >
-                  {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </Button>
               )}
             </div>
           </div>
         </div>
+      </motion.header>
 
-        {/* Mobile Menu Drawer */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden absolute top-full left-0 right-0 bg-card border-b border-border/50 py-4 px-6 shadow-xl overflow-hidden"
-            >
-              <nav className="flex flex-col gap-3">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    className="text-base font-semibold text-muted-foreground hover:text-foreground py-2 border-b border-border/10"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <Link
-                  to="/cart"
-                  className="text-base font-semibold text-muted-foreground hover:text-foreground py-2 border-b border-border/10 flex items-center justify-between"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span>Shopping Cart</span>
-                  <span className="bg-primary/10 text-primary text-xs px-2.5 py-0.5 rounded-full font-bold">{cartCount}</span>
-                </Link>
-                <Link
-                  to="/wishlist"
-                  className="text-base font-semibold text-muted-foreground hover:text-foreground py-2 border-b border-border/10 flex items-center justify-between"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span>My Wishlist</span>
-                  <span className="bg-primary/10 text-primary text-xs px-2.5 py-0.5 rounded-full font-bold">{wishlistItems.length}</span>
-                </Link>
-                {userInfo ? (
-                  <>
-                    <Link
-                      to="/profile"
-                      className="text-base font-semibold text-muted-foreground hover:text-foreground py-2 border-b border-border/10"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      My Profile ({userInfo.name})
-                    </Link>
-                    {userInfo.isAdmin && (
-                      <Link
-                        to="/admin/dashboard"
-                        className="text-base font-semibold text-primary py-2 border-b border-border/10"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Admin Dashboard
-                      </Link>
-                    )}
-                    <button
-                      onClick={() => {
-                        logoutHandler();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="text-base font-semibold text-destructive py-2 text-left"
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <Link
-                    to="/login"
-                    className="text-base font-semibold text-primary py-2"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Sign In / Register
-                  </Link>
-                )}
-              </nav>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+      {/* Search Modal */}
+      <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
 
-      {/* Spotlight Command Search Modal */}
-      <SearchModal
-        isOpen={searchModalOpen}
-        onClose={() => setSearchModalOpen(false)}
-      />
+      {/* Cart Preview Drawer */}
+      <CartPreview open={cartOpen} onOpenChange={setCartOpen} />
     </>
   );
 };

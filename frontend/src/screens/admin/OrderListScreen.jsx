@@ -46,7 +46,6 @@ const OrderListScreen = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-border/50 bg-muted/20 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <th scope="col" className="px-6 py-4">ID</th>
                     <th scope="col" className="px-6 py-4">User</th>
                     <th scope="col" className="px-6 py-4">Date</th>
                     <th scope="col" className="px-6 py-4">Total</th>
@@ -64,9 +63,6 @@ const OrderListScreen = () => {
                       transition={{ delay: idx * 0.03 }}
                       className="hover:bg-muted/10 transition-colors group"
                     >
-                      <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
-                        {order._id}
-                      </td>
                       <td className="px-6 py-4 font-medium text-foreground">
                         {order.user ? order.user.name : <span className="text-muted-foreground italic">Guest / Deleted</span>}
                       </td>
@@ -77,7 +73,7 @@ const OrderListScreen = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 font-semibold text-foreground">
-                        ${order.totalPrice?.toFixed(2)}
+                        ₹{order.totalPrice?.toFixed(2)}
                       </td>
                       <td className="px-6 py-4">
                         {order.isPaid ? (
@@ -122,7 +118,7 @@ const OrderListScreen = () => {
                   ))}
                   {orders.length === 0 && (
                     <tr>
-                      <td colSpan="7" className="px-6 py-12 text-center text-muted-foreground">
+                      <td colSpan="6" className="px-6 py-12 text-center text-muted-foreground">
                         No orders recorded yet.
                       </td>
                     </tr>

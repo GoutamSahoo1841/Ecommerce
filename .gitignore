@@ -3,6 +3,4 @@ node_modules/
 dist/
 build/
 .DS_Store
-
-
-echo ec-ommerce-ui-components (2)/ >> .gitignore
+*.log

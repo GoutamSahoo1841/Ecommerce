@@ -134,7 +134,7 @@ const SearchModal = ({ isOpen, onClose }) => {
                           <div>
                             <p className="font-medium text-foreground line-clamp-1">{product.name}</p>
                             <p className="text-xs text-muted-foreground">
-                              {product.category} · <span className="font-semibold text-foreground">${product.price}</span>
+                              {product.category} · <span className="font-semibold text-foreground">₹{product.price}</span>
                             </p>
                           </div>
                         </div>
@@ -205,7 +205,7 @@ const SearchModal = ({ isOpen, onClose }) => {
                 <kbd className="rounded border border-border bg-card px-1 font-mono">Esc</kbd> to close
               </span>
             </div>
-            <span>NOVA Spotlight Search</span>
+            <span>ShopSphere Spotlight Search</span>
           </div>
         </motion.div>
       </div>

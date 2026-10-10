@@ -68,7 +68,6 @@ const UserListScreen = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-border/50 bg-muted/20 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <th scope="col" className="px-6 py-4">ID</th>
                     <th scope="col" className="px-6 py-4">Name</th>
                     <th scope="col" className="px-6 py-4">Email</th>
                     <th scope="col" className="px-6 py-4">Role</th>
@@ -84,9 +83,6 @@ const UserListScreen = () => {
                       transition={{ delay: idx * 0.03 }}
                       className="hover:bg-muted/10 transition-colors group"
                     >
-                      <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
-                        {userItem._id}
-                      </td>
                       <td className="px-6 py-4 font-medium text-foreground">
                         {userItem.name}
                       </td>
@@ -140,7 +136,7 @@ const UserListScreen = () => {
                   ))}
                   {users.length === 0 && (
                     <tr>
-                      <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
+                      <td colSpan="4" className="px-6 py-12 text-center text-muted-foreground">
                         No registered users found.
                       </td>
                     </tr>

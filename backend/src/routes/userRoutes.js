@@ -12,6 +12,7 @@ import {
   updateUser,
   forgotPassword,
   resetPassword,
+  refreshAccessToken,
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -21,6 +22,7 @@ router.route('/').post(registerUser).get(protect, admin, getUsers);
 router.post('/login', authUser);
 router.post('/admin/login', authAdmin);
 router.post('/logout', logoutUser);
+router.post('/refresh', refreshAccessToken);
 router.post('/forgotpassword', forgotPassword);
 router.put('/resetpassword/:token', resetPassword);
 router.route('/profile')

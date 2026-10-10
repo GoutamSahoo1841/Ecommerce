@@ -267,7 +267,7 @@ const ShippingScreen = () => {
                 <label className="block text-xs font-semibold text-muted-foreground">Address</label>
                 <input
                   type="text"
-                  placeholder="Enter address"
+                  placeholder="e.g. Flat 302, Green Glen Layout, Bellandur"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
@@ -279,7 +279,7 @@ const ShippingScreen = () => {
                 <label className="block text-xs font-semibold text-muted-foreground">City</label>
                 <input
                   type="text"
-                  placeholder="Enter city"
+                  placeholder="e.g. Bengaluru"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
@@ -288,10 +288,10 @@ const ShippingScreen = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-muted-foreground">Postal Code</label>
+                <label className="block text-xs font-semibold text-muted-foreground">PIN Code</label>
                 <input
                   type="text"
-                  placeholder="Enter postal code"
+                  placeholder="e.g. 560103"
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
                   className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"
@@ -303,7 +303,7 @@ const ShippingScreen = () => {
                 <label className="block text-xs font-semibold text-muted-foreground">Country</label>
                 <input
                   type="text"
-                  placeholder="Enter country"
+                  placeholder="India"
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   className="w-full bg-secondary border border-border/50 rounded-xl px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary/30 outline-none transition-all placeholder:text-muted-foreground/60"

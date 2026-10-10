@@ -1,8 +1,8 @@
 const products = [
   {
-    name: 'Nova Pro Wireless Headphones',
+    name: 'ShopSphere Pro Wireless Headphones',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'Premium wireless headphones with active noise cancellation, spatial audio, and 40-hour battery life. Experience sound like never before.',
     price: 349,
@@ -24,7 +24,7 @@ const products = [
   {
     name: 'Ultra Smart Watch Series X',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'Advanced health monitoring, always-on display, and seamless connectivity. Your personal health companion on your wrist.',
     price: 499,
@@ -46,7 +46,7 @@ const products = [
   {
     name: 'Pro Laptop Stand Aluminum',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'Ergonomic aluminum laptop stand with adjustable height and angle. Perfect for your home office setup.',
     price: 129,
@@ -61,7 +61,7 @@ const products = [
   {
     name: 'Wireless Charging Pad Pro',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       '15W fast wireless charging with MagSafe compatibility. Charges your devices effortlessly.',
     price: 79,
@@ -78,7 +78,7 @@ const products = [
   {
     name: 'Studio Monitor Speakers',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'Professional-grade studio monitors with crystal-clear audio reproduction. Perfect for creators and audiophiles.',
     price: 599,
@@ -93,7 +93,7 @@ const products = [
   {
     name: 'Mechanical Keyboard Pro',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'Premium mechanical keyboard with hot-swappable switches, RGB backlighting, and wireless connectivity.',
     price: 199,
@@ -110,7 +110,7 @@ const products = [
   {
     name: 'Ultra HD Webcam 4K',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'Professional 4K webcam with auto-focus, low-light correction, and built-in privacy shutter.',
     price: 179,
@@ -124,7 +124,7 @@ const products = [
   {
     name: 'Portable SSD 2TB',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'Ultra-fast portable SSD with 2TB storage. Transfer speeds up to 2000MB/s.',
     price: 249,
@@ -140,7 +140,7 @@ const products = [
   {
     name: 'Noise Cancelling Earbuds',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'True wireless earbuds with active noise cancellation and transparency mode. 8 hours of listening.',
     price: 199,
@@ -155,7 +155,7 @@ const products = [
   {
     name: 'Smart Home Hub',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'Central hub for all your smart home devices. Control lights, thermostat, security, and more.',
     price: 149,
@@ -170,7 +170,7 @@ const products = [
   {
     name: 'Gaming Mouse Pro',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'High-precision gaming mouse with 25,000 DPI sensor, customizable buttons, and RGB lighting.',
     price: 89,
@@ -186,7 +186,7 @@ const products = [
   {
     name: 'USB-C Hub 10-in-1',
     user: 'ADMIN_USER_ID',
-    brand: 'Nova',
+    brand: 'ShopSphere',
     description:
       'Complete connectivity solution with HDMI, USB-A, SD card reader, Ethernet, and more.',
     price: 79,

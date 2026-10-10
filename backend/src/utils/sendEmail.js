@@ -1,35 +1,52 @@
 import nodemailer from 'nodemailer';
 
 const sendEmail = async (options) => {
-  // Create a test account dynamically if no SMTP credentials are provided
-  // This is great for development. In production, use SendGrid, Mailgun, etc.
   let transporter;
+  let isEthereal = false;
 
-  if (process.env.SMTP_HOST) {
+  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+    // Use Gmail SMTP
+    console.log(`[Email Service] Using Gmail SMTP (${process.env.GMAIL_USER}) to send to: ${options.email}`);
+    transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+  } else if (process.env.SMTP_HOST) {
+    // Use Custom SMTP Server
+    console.log(`[Email Service] Using SMTP Host (${process.env.SMTP_HOST}) to send to: ${options.email}`);
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
+      port: process.env.SMTP_PORT || 587,
+      secure: process.env.SMTP_PORT == 465,
       auth: {
         user: process.env.SMTP_EMAIL,
         pass: process.env.SMTP_PASSWORD,
       },
     });
   } else {
-    // Generate test SMTP service account from ethereal.email
+    // Fallback: Generate test SMTP service account from ethereal.email for local dev
+    isEthereal = true;
+    console.log(`[Email Service] No Gmail credentials found. Using Ethereal Email test account for: ${options.email}`);
     const testAccount = await nodemailer.createTestAccount();
     transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
+      host: 'smtp.ethereal.email',
       port: 587,
-      secure: false, // true for 465, false for other ports
+      secure: false,
       auth: {
-        user: testAccount.user, // generated ethereal user
-        pass: testAccount.pass, // generated ethereal password
+        user: testAccount.user,
+        pass: testAccount.pass,
       },
     });
   }
 
+  const senderEmail = process.env.GMAIL_USER || process.env.FROM_EMAIL || 'noreply@ecommerce.com';
+  const senderName = process.env.FROM_NAME || 'Ecommerce App';
+
   const message = {
-    from: `${process.env.FROM_NAME || 'Ecommerce App'} <${process.env.FROM_EMAIL || 'noreply@ecommerce.com'}>`,
+    from: `"${senderName}" <${senderEmail}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,
@@ -38,9 +55,12 @@ const sendEmail = async (options) => {
 
   const info = await transporter.sendMail(message);
 
-  console.log('Message sent: %s', info.messageId);
-  // Preview only available when sending through an Ethereal account
-  console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+  console.log('[Email Service] Message sent successfully to %s! ID: %s', options.email, info.messageId);
+  if (isEthereal) {
+    console.log('[Email Service] Preview URL: %s', nodemailer.getTestMessageUrl(info));
+  }
 };
 
 export default sendEmail;
+
+

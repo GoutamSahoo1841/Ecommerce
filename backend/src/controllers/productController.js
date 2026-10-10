@@ -1,18 +1,20 @@
 import asyncHandler from 'express-async-handler';
 import Product from '../models/productModel.js';
+import { getCache, setCache, clearCachePattern } from '../config/redis.js';
 
 // @desc    Fetch all products
 // @route   GET /api/products
 // @access  Public
+// GET /api/products?keyword=phone&category=Electronics&rating=4&price=500-2000&sort=priceAsc&pageNumber=2
 const getProducts = asyncHandler(async (req, res) => {
-  const pageSize = process.env.PAGINATION_LIMIT || 10;
-  const page = Number(req.query.pageNumber) || 1;
+  const pageSize = process.env.PAGINATION_LIMIT || 10; // Number of products to display in one page
+  const page = Number(req.query.pageNumber) || 1; 
 
   const keyword = req.query.keyword
     ? {
         name: {
-          $regex: req.query.keyword,
-          $options: 'i',
+          $regex: req.query.keyword, //It allows pattern matching
+          $options: 'i', // i means case-insensitive. like iphone,IPHONE,iPhone,IpHoNe
         },
       }
     : {};
@@ -35,9 +37,9 @@ const getProducts = asyncHandler(async (req, res) => {
 
   let sortObj = {};
   if (req.query.sort === 'newest') {
-    sortObj = { createdAt: -1 };
+    sortObj = { createdAt: -1 }; //-1 means descending order
   } else if (req.query.sort === 'priceAsc') {
-    sortObj = { price: 1 };
+    sortObj = { price: 1 }; //1 means ascending.
   } else if (req.query.sort === 'priceDesc') {
     sortObj = { price: -1 };
   } else if (req.query.sort === 'rating') {
@@ -46,22 +48,39 @@ const getProducts = asyncHandler(async (req, res) => {
     sortObj = { createdAt: -1 }; // default
   }
 
+  // Check Redis Cache
+  const cacheKey = `products:list:${JSON.stringify(req.query)}`; //The purpose is to create a unique cache key for each different query.
+  const cachedProducts = await getCache(cacheKey);
+  if (cachedProducts) {
+    return res.json(cachedProducts);
+  }
+
   const count = await Product.countDocuments(filter);
   const products = await Product.find(filter)
     .sort(sortObj)
     .limit(pageSize)
     .skip(pageSize * (page - 1));
 
-  res.json({ products, page, pages: Math.ceil(count / pageSize), count });
+  const responseData = { products, page, pages: Math.ceil(count / pageSize), count };
+  await setCache(cacheKey, responseData, 5 * 60 * 60); // 5 hours cache
+
+  res.json(responseData);
 });
 
 // @desc    Fetch single product
 // @route   GET /api/products/:id
 // @access  Public
 const getProductById = asyncHandler(async (req, res) => {
+  const cacheKey = `products:detail:${req.params.id}`;
+  const cachedProduct = await getCache(cacheKey);
+  if (cachedProduct) {
+    return res.json(cachedProduct);
+  }
+
   const product = await Product.findById(req.params.id);
 
   if (product) {
+    await setCache(cacheKey, product, 5 * 60 * 60); // 5 hours cache
     res.json(product);
   } else {
     res.status(404);
@@ -90,6 +109,8 @@ const createProduct = asyncHandler(async (req, res) => {
   });
 
   const createdProduct = await product.save();
+  await clearCachePattern('products:*');
+  await clearCachePattern('dashboard:*');
   res.status(201).json(createdProduct);
 });
 
@@ -135,6 +156,8 @@ const updateProduct = asyncHandler(async (req, res) => {
     }
 
     const updatedProduct = await product.save();
+    await clearCachePattern('products:*');
+    await clearCachePattern('dashboard:*');
     res.json(updatedProduct);
   } else {
     res.status(404);
@@ -150,6 +173,8 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
   if (product) {
     await Product.deleteOne({ _id: product._id });
+    await clearCachePattern('products:*');
+    await clearCachePattern('dashboard:*');
     res.json({ message: 'Product removed' });
   } else {
     res.status(404);
@@ -160,7 +185,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 // @desc    Create new review
 // @route   POST /api/products/:id/reviews
 // @access  Private
-const createProductReview = asyncHandler(async (req, res) => {
+const createProductReview = asyncHandler(async (req, res) => { //asyncHandler automatically forwards errors to your global Express error middleware.
   const { rating, comment } = req.body;
 
   const product = await Product.findById(req.params.id);
@@ -191,6 +216,7 @@ const createProductReview = asyncHandler(async (req, res) => {
       product.reviews.length;
 
     await product.save();
+    await clearCachePattern('products:*');
     res.status(201).json({ message: 'Review added' });
   } else {
     res.status(404);
@@ -202,7 +228,7 @@ const createProductReview = asyncHandler(async (req, res) => {
 // @route   GET /api/products/top
 // @access  Public
 const getTopProducts = asyncHandler(async (req, res) => {
-  const products = await Product.find({}).sort({ rating: -1 }).limit(3);
+  const products = await Product.find({}).sort({ rating: -1 }).limit(5);
 
   res.json(products);
 });
@@ -211,7 +237,14 @@ const getTopProducts = asyncHandler(async (req, res) => {
 // @route   GET /api/products/categories
 // @access  Public
 const getProductCategories = asyncHandler(async (req, res) => {
+  const cacheKey = 'products:categories';
+  const cachedCategories = await getCache(cacheKey);
+  if (cachedCategories) {
+    return res.json(cachedCategories);
+  }
+
   const categories = await Product.find().distinct('category');
+  await setCache(cacheKey, categories, 5 * 60 * 60); // 5 hours cache
   res.json(categories);
 });
 
@@ -225,7 +258,7 @@ const getRelatedProducts = asyncHandler(async (req, res) => {
     const relatedProducts = await Product.find({
       _id: { $ne: product._id }, // Exclude current product
       category: product.category, // Must match same category
-    }).limit(4);
+    }).limit(10);
 
     res.json(relatedProducts);
   } else {

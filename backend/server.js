@@ -1,13 +1,15 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import http from 'http';
 import { Server } from 'socket.io';
 import connectDB from './src/config/db.js';
 import app from './src/app.js';
-
-dotenv.config();
+import { initRedis } from './src/config/redis.js';
 
 // Connect to database
 connectDB();
+
+// Connect to Redis
+initRedis();
 
 const PORT = process.env.PORT || 5000;
 

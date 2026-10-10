@@ -20,8 +20,8 @@ export const updateCart = (state) => {
 
   const discountedItemsPrice = itemsPrice - discountPrice;
 
-  // Calculate shipping price (If discounted order is > $100 then free, else $10 shipping)
-  const shippingPrice = discountedItemsPrice > 100 ? 0 : 10;
+  // Calculate shipping price (If discounted order is > ₹500 then free, else ₹50 shipping)
+  const shippingPrice = discountedItemsPrice > 500 ? 0 : 50;
   state.shippingPrice = addDecimals(shippingPrice);
 
   // Calculate tax price (15% tax)

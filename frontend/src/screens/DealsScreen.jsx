@@ -12,7 +12,7 @@ const DealsScreen = () => {
 
   return (
     <div className="space-y-8">
-      <Meta title="Special Deals - NOVA" description="Shop limited time discount offers and tech deals." />
+      <Meta title="Special Deals - ShopSphere" description="Shop limited time discount offers and tech deals." />
 
       {/* Centered Hero promo banner */}
       <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-blue-50/70 via-indigo-50/50 to-purple-50/30 dark:from-slate-900/60 dark:via-slate-900/40 dark:to-slate-950/20 p-8 md:p-14 text-center border border-border/30 shadow-xs flex flex-col items-center justify-center">

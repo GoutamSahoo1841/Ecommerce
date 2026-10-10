@@ -1,25 +1,49 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search,
-  Loader2,
-  Star,
-  Trash2,
+  Filter,
   SlidersHorizontal,
-  AlertCircle,
+  Grid3X3,
   LayoutGrid,
-  List as ListIcon,
   ChevronDown,
-  ShoppingBag
+  X,
+  Loader2,
+  AlertCircle,
+  Tag,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ProductCard, ProductCardSkeleton } from '../components/ProductCard';
 import { useGetProductsQuery, useGetProductCategoriesQuery } from '../slices/productsApiSlice';
-import Product from '../components/Product';
-import { Card, CardContent } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
 import { addToCart, enableBuyNow } from '../slices/cartSlice';
+import { staggerContainer, fadeInUp } from '@/lib/animations';
 import { toast } from 'react-toastify';
+
+const sortOptions = [
+  { label: 'Featured', value: 'featured' },
+  { label: 'Newest', value: 'newest' },
+  { label: 'Price: Low to High', value: 'priceAsc' },
+  { label: 'Price: High to Low', value: 'priceDesc' },
+  { label: 'Rating', value: 'rating' },
+];
 
 const SearchScreen = () => {
   const [searchParams] = useSearchParams();
@@ -33,6 +57,9 @@ const SearchScreen = () => {
   const rating = searchParams.get('rating') || 'all';
   const sort = searchParams.get('sort') || 'featured';
 
+  const [viewMode, setViewMode] = useState('grid');
+  const [priceSliderVal, setPriceSliderVal] = useState([0, 1000]);
+
   const { data, isLoading, error } = useGetProductsQuery({
     keyword,
     pageNumber,
@@ -42,57 +69,20 @@ const SearchScreen = () => {
     sort,
   });
 
-  // Fetch all products dynamically to calculate counts across categories
   const { data: allProductsData } = useGetProductsQuery({});
   const allProducts = allProductsData?.products || [];
-
   const { data: categories, isLoading: loadingCategories } = useGetProductCategoriesQuery();
-
   const { userInfo } = useSelector((state) => state.auth);
-
-  const [viewMode, setViewMode] = useState('grid');
-  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
-  const sortRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (sortRef.current && !sortRef.current.contains(e.target)) {
-        setSortDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const getFilterUrl = (filter) => {
     const filterPage = filter.page || pageNumber;
-    const filterCategory = filter.category || category;
-    const filterKeyword = filter.keyword || keyword;
-    const filterRating = filter.rating || rating;
-    const filterPrice = filter.price || price;
-    const filterSort = filter.sort || sort;
+    const filterCategory = filter.category !== undefined ? filter.category : category;
+    const filterKeyword = filter.keyword !== undefined ? filter.keyword : keyword;
+    const filterRating = filter.rating !== undefined ? filter.rating : rating;
+    const filterPrice = filter.price !== undefined ? filter.price : price;
+    const filterSort = filter.sort !== undefined ? filter.sort : sort;
 
-    return `/search?category=${filterCategory}&keyword=${filterKeyword}&price=${filterPrice}&rating=${filterRating}&sort=${filterSort}&pageNumber=${filterPage}`;
-  };
-
-  const handleAddToCart = (p) => {
-    if (!userInfo) {
-      toast.info('Please sign in to add items to your cart');
-      navigate('/login');
-      return;
-    }
-    dispatch(addToCart({ ...p, qty: 1 }));
-    toast.success(`Added ${p.name} to cart`);
-  };
-
-  const handleBuyNow = (p) => {
-    if (!userInfo) {
-      toast.info('Please sign in to buy items');
-      navigate('/login?redirect=' + encodeURIComponent(window.location.pathname));
-      return;
-    }
-    dispatch(enableBuyNow({ ...p, qty: 1 }));
-    navigate('/shipping');
+    return `/search?category=${encodeURIComponent(filterCategory)}&keyword=${encodeURIComponent(filterKeyword)}&price=${filterPrice}&rating=${filterRating}&sort=${filterSort}&pageNumber=${filterPage}`;
   };
 
   const categoryCounts = useMemo(() => {
@@ -107,333 +97,281 @@ const SearchScreen = () => {
 
   const hasActiveFilters = keyword !== '' || category !== 'all' || rating !== 'all' || price !== 'all';
 
-  const sortOptions = [
-    { label: 'Featured', value: 'featured' },
-    { label: 'Newest', value: 'newest' },
-    { label: 'Price: Low to High', value: 'priceAsc' },
-    { label: 'Price: High to Low', value: 'priceDesc' },
-    { label: 'Rating', value: 'rating' },
-  ];
+  const handleClearFilters = () => {
+    navigate('/search');
+  };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  const FilterContent = () => (
+    <div className="space-y-6 text-left">
+      {/* Categories Filter */}
       <div>
-        <h1 className="text-4xl font-extrabold text-foreground tracking-tight">All Products</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          {isLoading ? 'Loading products...' : `${data?.count || 0} products`}
-        </p>
+        <h3 className="mb-4 font-semibold text-foreground text-sm uppercase tracking-wider">Categories</h3>
+        {loadingCategories ? (
+          <div className="space-y-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-6 rounded-lg bg-muted animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {categories?.map((c) => (
+              <label key={c} className="flex cursor-pointer items-center justify-between text-sm">
+                <div className="flex items-center gap-2.5">
+                  <Checkbox
+                    checked={category === c}
+                    onCheckedChange={() => {
+                      const newCategory = category === c ? 'all' : c;
+                      navigate(getFilterUrl({ category: newCategory, page: 1 }));
+                    }}
+                  />
+                  <span className={`capitalize text-sm ${category === c ? 'font-bold text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                    {c}
+                  </span>
+                </div>
+                <span className="text-xs text-muted-foreground">{categoryCounts[c] || 0}</span>
+              </label>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
-        {/* Filters Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card className="border-border/50 bg-card rounded-[24px] shadow-sm">
-            <CardContent className="p-6 space-y-6">
-              <div className="flex items-center justify-between border-b border-border/40 pb-4">
-                <h3 className="font-semibold text-foreground flex items-center gap-2">
-                  <SlidersHorizontal className="h-4.5 w-4.5 text-foreground" />
-                  Filters
-                </h3>
-                {hasActiveFilters && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    asChild
-                    className="h-8 px-2 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive gap-1"
-                  >
-                    <Link to="/search">
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Clear All
-                    </Link>
-                  </Button>
-                )}
-              </div>
-
-              {/* Categories Checkbox List */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-bold text-foreground">Categories</h4>
-                {loadingCategories ? (
-                  <div className="space-y-2 py-1">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="animate-pulse bg-muted/30 h-6 rounded-lg w-full" />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {categories?.map((c) => (
-                      <label key={c} className="flex items-center justify-between text-sm text-muted-foreground hover:text-foreground cursor-pointer py-0.5">
-                        <div className="flex items-center gap-2.5">
-                          <input
-                            type="checkbox"
-                            checked={category === c}
-                            onChange={() => {
-                              const newCategory = category === c ? 'all' : c;
-                              navigate(getFilterUrl({ category: newCategory, page: 1 }));
-                            }}
-                            className="h-4 w-4 rounded border-border text-primary focus:ring-primary/25 cursor-pointer accent-primary"
-                          />
-                          <span className={`capitalize font-semibold text-xs sm:text-sm ${category === c ? 'text-foreground' : ''}`}>{c}</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground/60 font-bold">{categoryCounts[c] || 0}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Price Range Slider */}
-              <div className="space-y-3 pt-4 border-t border-border/40">
-                <h4 className="text-sm font-bold text-foreground">Price Range</h4>
-                <div className="pt-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="600"
-                    value={price === 'all' ? 600 : Number(price.split('-')[1]) || 600}
-                    onChange={(e) => {
-                      const maxVal = e.target.value;
-                      navigate(getFilterUrl({ price: `0-${maxVal}`, page: 1 }));
-                    }}
-                    className="w-full h-1 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground font-semibold mt-2.5">
-                    <span>$0</span>
-                    <span>${price === 'all' ? '600' : price.split('-')[1]}</span>
-                  </div>
-                </div>
-              </div>
-
-            </CardContent>
-          </Card>
+      {/* Price Range Slider */}
+      <div>
+        <h3 className="mb-4 font-semibold text-foreground text-sm uppercase tracking-wider">Max Price</h3>
+        <Slider
+          value={priceSliderVal}
+          onValueChange={(val) => setPriceSliderVal(val)}
+          onValueCommit={(val) => {
+            navigate(getFilterUrl({ price: `0-${val[1]}`, page: 1 }));
+          }}
+          min={0}
+          max={1000}
+          step={10}
+          className="mb-2"
+        />
+        <div className="flex items-center justify-between text-sm text-muted-foreground font-medium">
+          <span>₹0</span>
+          <span>₹{priceSliderVal[1].toLocaleString('en-IN')}</span>
         </div>
+      </div>
 
-        {/* Products Results List */}
-        <div className="lg:col-span-3 space-y-6">
-          {isLoading ? (
-            <div className="flex flex-col justify-center items-center py-24 gap-4">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="text-muted-foreground animate-pulse text-sm">Searching store database...</p>
+      {/* Clear Filters */}
+      {hasActiveFilters && (
+        <Button variant="outline" onClick={handleClearFilters} className="w-full">
+          Clear Filters
+        </Button>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen pt-4 text-left">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div
+          variants={fadeInUp}
+          initial="hidden"
+          animate="visible"
+          className="mb-8"
+        >
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
+            {keyword ? `Search Results for "${keyword}"` : 'All Products'}
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            {isLoading ? 'Searching...' : `${data?.count || 0} products found`}
+          </p>
+        </motion.div>
+
+        <div className="flex gap-8">
+          {/* Desktop Sidebar */}
+          <motion.aside
+            variants={fadeInUp}
+            initial="hidden"
+            animate="visible"
+            className="hidden w-64 shrink-0 lg:block"
+          >
+            <div className="sticky top-24 rounded-2xl bg-card p-6 shadow-sm border border-border/50">
+              <h2 className="mb-6 flex items-center gap-2 font-semibold text-foreground">
+                <SlidersHorizontal className="h-4 w-4" />
+                Filters
+              </h2>
+              <FilterContent />
             </div>
-          ) : error ? (
-            <Card className="border-destructive/30 bg-destructive/10">
-              <CardContent className="flex items-center gap-3 p-6 text-destructive-foreground">
-                <span className="font-semibold text-sm">Error:</span>
-                <span className="text-sm">{error?.data?.message || error.error}</span>
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              {/* Controls Bar */}
-              <div className="flex justify-between items-center bg-transparent py-1">
-                <div>
-                  {keyword !== '' && (
-                    <span className="text-sm text-muted-foreground">
-                      Results for &quot;<span className="text-foreground font-bold">{keyword}</span>&quot;
-                    </span>
-                  )}
-                </div>
+          </motion.aside>
 
-                <div className="flex items-center gap-3">
-                  {/* Grid/List layout toggle */}
-                  <div className="flex items-center bg-secondary/50 rounded-xl p-0.5 border border-border/30">
-                    <button
-                      onClick={() => setViewMode('grid')}
-                      className={`p-1.5 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                      title="Grid View"
-                    >
-                      <LayoutGrid className="h-4.5 w-4.5" />
-                    </button>
-                    <button
-                      onClick={() => setViewMode('list')}
-                      className={`p-1.5 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                      title="List View"
-                    >
-                      <ListIcon className="h-4.5 w-4.5" />
-                    </button>
-                  </div>
-
-                  {/* Sort dropdown */}
-                  <div className="relative" ref={sortRef}>
-                    <Button
-                      variant="outline"
-                      onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
-                      className="h-10 rounded-xl px-4 text-xs font-semibold flex items-center gap-1.5 bg-background shadow-xs hover:bg-secondary/40"
-                    >
-                      Sort
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          {/* Main Content */}
+          <div className="flex-1 space-y-6">
+            {/* Toolbar */}
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              animate="visible"
+              className="flex flex-wrap items-center justify-between gap-4 bg-card p-4 rounded-2xl border border-border/50 shadow-sm"
+            >
+              <div className="flex items-center gap-2">
+                {/* Mobile Filter Button */}
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" className="lg:hidden">
+                      <Filter className="mr-2 h-4 w-4" />
+                      Filters
                     </Button>
-                    {sortDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-48 bg-card border border-border/50 rounded-xl shadow-lg py-1.5 z-30 overflow-hidden">
-                        {sortOptions.map((opt) => (
-                          <button
-                            key={opt.value}
-                            onClick={() => {
-                              navigate(getFilterUrl({ sort: opt.value, page: 1 }));
-                              setSortDropdownOpen(false);
-                            }}
-                            className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors ${sort === opt.value ? 'bg-primary/5 text-primary font-bold' : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
-                              }`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  </SheetTrigger>
+                  <SheetContent side="left">
+                    <SheetHeader>
+                      <SheetTitle>Filters</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <FilterContent />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+
+                {/* Active Category Badge */}
+                {category !== 'all' && (
+                  <Badge
+                    variant="secondary"
+                    className="cursor-pointer gap-1 pr-1 capitalize"
+                    onClick={() => navigate(getFilterUrl({ category: 'all', page: 1 }))}
+                  >
+                    Category: {category}
+                    <X className="h-3 w-3" />
+                  </Badge>
+                )}
+                {keyword && (
+                  <Badge
+                    variant="secondary"
+                    className="cursor-pointer gap-1 pr-1"
+                    onClick={() => navigate(getFilterUrl({ keyword: '', page: 1 }))}
+                  >
+                    Query: {keyword}
+                    <X className="h-3 w-3" />
+                  </Badge>
+                )}
               </div>
 
-              {/* No Results Screen */}
-              {data.products.length === 0 && (
-                <Card className="border-border/50 bg-card py-16 text-center rounded-[24px]">
-                  <CardContent className="space-y-4 max-w-sm mx-auto">
-                    <div className="mx-auto w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center text-muted-foreground">
-                      <AlertCircle className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-foreground">No Products Found</h3>
-                      <p className="text-muted-foreground text-sm mt-1">
-                        We couldn&apos;t find any items matching your selection. Try adjustments or clear filters.
-                      </p>
-                    </div>
-                    <Button asChild className="rounded-xl shadow-md text-white">
-                      <Link to="/search">Clear Filters</Link>
+              <div className="flex items-center gap-2">
+                {/* View Mode */}
+                <div className="hidden items-center gap-1 rounded-lg bg-muted p-1 sm:flex">
+                  <Button
+                    variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setViewMode('grid')}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'compact' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setViewMode('compact')}
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Sort Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      Sort: {sortOptions.find((o) => o.value === sort)?.label || 'Featured'}
+                      <ChevronDown className="ml-2 h-4 w-4" />
                     </Button>
-                  </CardContent>
-                </Card>
-              )}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {sortOptions.map((option) => (
+                      <DropdownMenuItem
+                        key={option.value}
+                        onClick={() => navigate(getFilterUrl({ sort: option.value, page: 1 }))}
+                        className={sort === option.value ? 'bg-accent font-semibold' : ''}
+                      >
+                        {option.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </motion.div>
 
-              {/* Products Catalog Display */}
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {data.products.map((p, idx) => (
-                    <motion.div
-                      key={p._id}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.05, duration: 0.3 }}
-                    >
-                      <Product product={p} index={idx} />
-                    </motion.div>
-                  ))}
+            {/* Products Grid */}
+            {isLoading ? (
+              <div
+                className={`grid gap-6 ${
+                  viewMode === 'grid'
+                    ? 'sm:grid-cols-2 xl:grid-cols-3'
+                    : 'sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
+                }`}
+              >
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <ProductCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : error ? (
+              <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-destructive">
+                {error?.data?.message || error.error || 'Error loading products'}
+              </div>
+            ) : !data?.products || data.products.length === 0 ? (
+              <motion.div
+                variants={fadeInUp}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-col items-center justify-center py-16 text-center bg-card rounded-2xl border border-border/50"
+              >
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+                  <Filter className="h-10 w-10 text-muted-foreground" />
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {data.products.map((p, idx) => (
-                    <motion.div
-                      key={p._id}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.05, duration: 0.3 }}
-                    >
-                      <Card className="overflow-hidden shadow-xs hover:shadow-sm transition-all duration-300 relative group border border-border/50 rounded-2xl flex flex-col sm:flex-row h-auto sm:h-[180px] bg-card">
-                        {/* Image */}
-                        <div className="relative w-full sm:w-[180px] aspect-square sm:aspect-auto sm:h-full overflow-hidden bg-secondary/30 shrink-0">
-                          <img
-                            src={p.image}
-                            alt={p.name}
-                            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                          />
-                          {p.badge && (
-                            <span className={`absolute left-3 top-3 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-white ${p.badge.toLowerCase() === 'sale' ? 'bg-rose-500' :
-                                p.badge.toLowerCase() === 'new' ? 'bg-emerald-500' : 'bg-indigo-600'
-                              }`}>
-                              {p.badge}
-                            </span>
-                          )}
-                        </div>
+                <h3 className="mt-4 text-lg font-semibold text-foreground">No products found</h3>
+                <p className="mt-2 text-muted-foreground">
+                  Try adjusting your filters or search keywords
+                </p>
+                <Button variant="outline" onClick={handleClearFilters} className="mt-4">
+                  Clear Filters
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className={`grid gap-6 ${
+                  viewMode === 'grid'
+                    ? 'sm:grid-cols-2 xl:grid-cols-3'
+                    : 'sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
+                }`}
+              >
+                {data.products.map((product, index) => (
+                  <ProductCard key={product._id} product={product} index={index} />
+                ))}
+              </motion.div>
+            )}
 
-                        {/* Content details */}
-                        <div className="p-5 flex flex-col justify-between flex-grow">
-                          <div className="space-y-1 text-left">
-                            <div className="flex justify-between items-start gap-4">
-                              <div>
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{p.category}</span>
-                                <Link to={`/product/${p._id}`}>
-                                  <h3 className="text-base font-bold text-foreground hover:text-primary transition-colors line-clamp-1">
-                                    {p.name}
-                                  </h3>
-                                </Link>
-                              </div>
-                              <span className="text-lg font-extrabold text-foreground">${p.price}</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground line-clamp-2 max-w-xl leading-relaxed mt-1">
-                              {p.description}
-                            </p>
-                          </div>
-
-                          <div className="flex items-center justify-between border-t border-border/30 pt-3 mt-3">
-                            <div className="flex items-center gap-1">
-                              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                              <span className="text-xs font-semibold text-foreground">{p.rating}</span>
-                              <span className="text-xs text-muted-foreground">({p.numReviews})</span>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                              {p.countInStock > 0 ? (
-                                <div className="flex gap-2">
-                                  <Button
-                                    onClick={() => handleBuyNow(p)}
-                                    size="sm"
-                                    className="rounded-xl text-[10px] h-8 bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 font-semibold"
-                                  >
-                                    Buy Now
-                                  </Button>
-                                  <Button
-                                    onClick={() => handleAddToCart(p)}
-                                    size="sm"
-                                    className="rounded-xl text-[10px] h-8 text-white px-2.5 font-semibold"
-                                  >
-                                    Add to Cart
-                                  </Button>
-                                </div>
-                              ) : (
-                                <Button
-                                  disabled
-                                  size="sm"
-                                  className="rounded-xl text-[10px] h-8 text-muted-foreground px-3 font-semibold"
-                                >
-                                  Out of Stock
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    </motion.div>
-                  ))}
+            {/* Pagination */}
+            {data?.pages > 1 && (
+              <div className="flex justify-center pt-8">
+                <div className="flex gap-2">
+                  {[...Array(data.pages).keys()].map((x) => {
+                    const pageVal = x + 1;
+                    const isActive = Number(pageNumber) === pageVal;
+                    return (
+                      <Button
+                        key={pageVal}
+                        variant={isActive ? 'default' : 'outline'}
+                        size="icon"
+                        asChild
+                        className="h-10 w-10 font-bold rounded-xl"
+                      >
+                        <Link to={getFilterUrl({ page: pageVal })}>
+                          {pageVal}
+                        </Link>
+                      </Button>
+                    );
+                  })}
                 </div>
-              )}
-
-              {/* Pagination */}
-              {data.pages > 1 && (
-                <div className="flex justify-center pt-8">
-                  <div className="flex gap-2">
-                    {[...Array(data.pages).keys()].map((x) => {
-                      const pageVal = x + 1;
-                      const isActive = Number(pageNumber) === pageVal;
-                      return (
-                        <Button
-                          key={pageVal}
-                          variant={isActive ? 'default' : 'outline'}
-                          size="icon"
-                          asChild
-                          className="h-10 w-10 font-bold rounded-xl"
-                        >
-                          <Link to={getFilterUrl({ page: pageVal })}>
-                            {pageVal}
-                          </Link>
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+              </div>
+            )}
+          </div>
         </div>
-
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ const AdminRoute = () => {
         <aside className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-border/50 bg-card shrink-0 p-6 lg:space-y-8">
           <div className="flex h-8 items-center justify-between">
             <Link to="/admin/dashboard" className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary to-indigo-500 bg-clip-text text-transparent">
-              NOVA Admin
+              ShopSphere Admin
             </Link>
             <Link to="/" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 font-semibold">
               <Home className="h-3 w-3" />

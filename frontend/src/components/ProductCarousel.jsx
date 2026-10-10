@@ -74,9 +74,9 @@ const ProductCarousel = () => {
               {currentProduct.description}
             </p>
             <div className="mt-6 flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-foreground">${currentProduct.price}</span>
+              <span className="text-2xl font-bold text-foreground">₹{currentProduct.price}</span>
               {currentProduct.originalPrice && (
-                <span className="text-sm text-muted-foreground line-through">${currentProduct.originalPrice}</span>
+                <span className="text-sm text-muted-foreground line-through">₹{currentProduct.originalPrice}</span>
               )}
             </div>
             <div className="mt-6">

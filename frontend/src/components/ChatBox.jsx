@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 import { MessageSquare, Send, X } from 'lucide-react';
 import { Button } from './ui/Button';
 
-const ENDPOINT = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '/';
+const ENDPOINT = '/';
 
 const ChatBox = () => {
   const { userInfo } = useSelector((state) => state.auth);

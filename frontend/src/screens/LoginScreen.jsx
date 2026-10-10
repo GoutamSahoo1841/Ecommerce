@@ -1,23 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import FormContainer from '../components/FormContainer';
-import { useLoginMutation } from '../slices/usersApiSlice';
+import { motion } from 'framer-motion';
+import { useLoginMutation, useAdminLoginMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
 import { Button } from '../components/ui/Button';
-import { User, ArrowLeft, Mail, Lock, Eye, EyeOff, ArrowRight, X } from 'lucide-react';
+import { User, ShieldCheck, Mail, Lock, Eye, EyeOff, ArrowRight, X } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { fadeInUp, staggerContainer, staggerItem } from '../lib/animations';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [role, setRole] = useState('user'); // 'user' | 'admin'
+  const [rememberMe, setRememberMe] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [login, { isLoading, error }] = useLoginMutation();
+  const [login, { isLoading: isLoginLoading, error: loginError, reset: resetLogin }] = useLoginMutation();
+  const [adminLogin, { isLoading: isAdminLoading, error: adminError, reset: resetAdminLogin }] = useAdminLoginMutation();
+
+  const isLoading = isLoginLoading || isAdminLoading;
+  const error = role === 'admin' ? adminError : loginError;
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -35,64 +41,52 @@ const LoginScreen = () => {
     }
   }, [navigate, redirect, userInfo]);
 
+  const handleRoleChange = (newRole) => {
+    setRole(newRole);
+    if (resetLogin) resetLogin();
+    if (resetAdminLogin) resetAdminLogin();
+  };
+
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await login({ email, password }).unwrap();
+      let res;
+      if (role === 'admin') {
+        res = await adminLogin({ email, password }).unwrap();
+      } else {
+        try {
+          res = await login({ email, password }).unwrap();
+        } catch (loginErr) {
+          // If the account is an admin account, automatically authenticate via adminLogin
+          if (loginErr?.data?.message?.includes('Admin account detected')) {
+            setRole('admin');
+            res = await adminLogin({ email, password }).unwrap();
+            toast.info('Admin credentials detected. Signed in as Admin.');
+          } else {
+            throw loginErr;
+          }
+        }
+      }
+
       dispatch(setCredentials({ ...res }));
-      if (res.isAdmin) {
+      if (res.isAdmin || role === 'admin') {
         navigate('/admin/dashboard');
       } else {
         navigate(redirect);
       }
     } catch (err) {
-      // Handled by mutation hook
+      // Handled by mutation error state
     }
   };
 
-  if (!showForm) {
-    return (
-      <div className="max-w-md mx-auto text-center py-20 px-6 space-y-6">
-        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#f0f4f9] dark:bg-secondary mx-auto">
-          <User className="h-12 w-12 text-[#5f6368] dark:text-muted-foreground/80" />
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Sign in to your account</h1>
-          <p className="text-muted-foreground text-sm max-w-sm mx-auto leading-relaxed">
-            Access your orders, wishlist, and account settings.
-          </p>
-        </div>
-        <div className="flex justify-center gap-3 pt-2">
-          <Button
-            onClick={() => setShowForm(true)}
-            className="rounded-xl px-6 text-white font-semibold h-10 bg-primary hover:bg-primary/90"
-          >
-            Sign In
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate(redirect ? `/admin/login?redirect=${redirect}` : '/admin/login')}
-            className="rounded-xl px-6 font-semibold h-10 border-border/80 bg-background hover:bg-secondary/60"
-          >
-            Admin Sign In
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex justify-center mt-12 mb-20 px-4">
-      <div className="w-full max-w-md bg-card border border-border/50 p-8 sm:p-10 rounded-3xl shadow-lg relative">
-        {/* Back Button */}
-        <button
-          onClick={() => setShowForm(false)}
-          className="absolute top-6 left-6 text-muted-foreground hover:text-foreground p-1 transition-colors rounded-full hover:bg-secondary/60"
-          title="Go Back"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-md bg-card border border-border/50 p-8 sm:p-10 rounded-3xl shadow-xl relative"
+      >
         {/* Close Button */}
         <button
           onClick={() => navigate('/')}
@@ -102,35 +96,69 @@ const LoginScreen = () => {
           <X className="h-5 w-5" />
         </button>
 
-        <div className="text-center mb-8 mt-6">
-          <span className="text-xl font-bold tracking-wider text-foreground">NOVA</span>
+        <motion.div variants={fadeInUp} className="text-center mb-6 mt-2">
+          <Link to="/" className="inline-block">
+            <span className="text-2xl font-bold tracking-wider text-foreground">ShopSphere</span>
+          </Link>
           <h1 className="text-2xl font-extrabold text-foreground mt-4">Welcome back</h1>
           <p className="text-sm text-muted-foreground mt-1">Sign in to access your account</p>
-        </div>
+        </motion.div>
+
+        {/* Role Tab Selector (Shopper / Admin) */}
+        <motion.div variants={staggerItem} className="mb-6 rounded-xl bg-secondary/70 p-1 border border-border/40">
+          <div className="grid grid-cols-2 gap-1" role="tablist" aria-label="Login role">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={role === 'user'}
+              onClick={() => handleRoleChange('user')}
+              className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
+                role === 'user'
+                  ? 'bg-card text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <User className="h-4 w-4" /> Shopper
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={role === 'admin'}
+              onClick={() => handleRoleChange('admin')}
+              className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
+                role === 'admin'
+                  ? 'bg-card text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <ShieldCheck className="h-4 w-4 text-primary" /> Admin
+            </button>
+          </div>
+        </motion.div>
 
         {error && (
-          <div className="mb-6 bg-destructive/10 text-destructive p-4 rounded-xl border border-destructive/20 text-xs text-center font-semibold">
+          <motion.div variants={fadeInUp} className="mb-6 bg-destructive/10 text-destructive p-4 rounded-xl border border-destructive/20 text-xs text-center font-semibold">
             {error?.data?.message || error.error || 'Invalid credentials'}
-          </div>
+          </motion.div>
         )}
 
-        <form onSubmit={submitHandler} className="space-y-5">
-          <div className="space-y-1.5">
+        <motion.form variants={staggerContainer} onSubmit={submitHandler} className="space-y-4">
+          <motion.div variants={staggerItem} className="space-y-1.5">
             <label className="block text-xs font-bold text-foreground">Email</label>
             <div className="relative flex items-center">
               <Mail className="absolute left-3.5 text-muted-foreground/55 h-4.5 w-4.5" />
               <input
                 type="email"
-                placeholder="john@example.com"
+                placeholder={role === 'admin' ? 'admin@gmail.com' : 'john@example.com'}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-card border border-border/60 rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-muted-foreground/50"
                 required
               />
             </div>
-          </div>
+          </motion.div>
 
-          <div className="space-y-1.5">
+          <motion.div variants={staggerItem} className="space-y-1.5">
             <label className="block text-xs font-bold text-foreground">Password</label>
             <div className="relative flex items-center">
               <Lock className="absolute left-3.5 text-muted-foreground/55 h-4.5 w-4.5" />
@@ -150,12 +178,14 @@ const LoginScreen = () => {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="flex justify-between items-center text-xs">
+          <motion.div variants={staggerItem} className="flex justify-between items-center text-xs">
             <label className="flex items-center gap-2 font-medium text-muted-foreground cursor-pointer select-none">
               <input
                 type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 rounded border-border text-primary focus:ring-primary/25 cursor-pointer accent-primary"
               />
               Remember me
@@ -163,31 +193,33 @@ const LoginScreen = () => {
             <Link to="/forgotpassword" className="text-primary hover:underline font-semibold">
               Forgot password?
             </Link>
-          </div>
+          </motion.div>
 
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-primary hover:bg-primary/95 text-white font-bold h-11 rounded-xl shadow-md flex items-center justify-center gap-2 mt-2"
-          >
-            {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-            ) : (
-              <>
-                Sign In
-                <ArrowRight className="h-4 w-4" />
-              </>
-            )}
-          </Button>
-        </form>
+          <motion.div variants={staggerItem}>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-primary hover:bg-primary/95 text-white font-bold h-11 rounded-xl shadow-md flex items-center justify-center gap-2 mt-2"
+            >
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+              ) : (
+                <>
+                  Sign In as {role === 'admin' ? 'Admin' : 'Shopper'}
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </motion.div>
+        </motion.form>
 
-        <div className="relative flex py-4 items-center">
+        <motion.div variants={fadeInUp} className="relative flex py-4 items-center mt-2">
           <div className="flex-grow border-t border-border/30"></div>
           <span className="flex-shrink mx-4 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider">or continue with</span>
           <div className="flex-grow border-t border-border/30"></div>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <motion.div variants={staggerItem} className="grid grid-cols-2 gap-3">
           <Button
             type="button"
             variant="outline"
@@ -213,15 +245,15 @@ const LoginScreen = () => {
             </svg>
             GitHub
           </Button>
-        </div>
+        </motion.div>
 
-        <div className="mt-6 text-center text-xs text-muted-foreground font-semibold">
+        <motion.div variants={fadeInUp} className="mt-6 text-center text-xs text-muted-foreground font-semibold">
           Don't have an account?{' '}
           <Link to={redirect ? `/register?redirect=${redirect}` : '/register'} className="text-primary font-bold hover:underline">
             Sign up
           </Link>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };

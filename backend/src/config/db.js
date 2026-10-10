@@ -61,6 +61,7 @@ const connectDB = async () => {
   } catch (error) {
     console.error(`Error: Could not connect to MongoDB database. Detail: ${error.message}`);
     console.error('If you are using MongoDB Atlas, make sure your current IP address is whitelisted in your cluster Network Access settings.');
+    process.exit(1);
   }
 };
 

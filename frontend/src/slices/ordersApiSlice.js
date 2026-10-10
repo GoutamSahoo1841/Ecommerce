@@ -7,13 +7,15 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
       query: (order) => ({
         url: ORDERS_URL,
         method: 'POST',
-        body: {...order},
+        body: { ...order },
       }),
+      invalidatesTags: ['Order'],
     }),
     getOrderDetails: builder.query({
       query: (id) => ({
         url: `${ORDERS_URL}/${id}`,
       }),
+      providesTags: ['Order'],
       keepUnusedDataFor: 5,
     }),
     payOrder: builder.mutation({
@@ -22,6 +24,7 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
         method: 'PUT',
         body: { ...details },
       }),
+      invalidatesTags: ['Order'],
     }),
     getPayPalClientId: builder.query({
       query: () => ({
@@ -33,12 +36,14 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
       query: () => ({
         url: `${ORDERS_URL}/mine`,
       }),
+      providesTags: ['Order'],
       keepUnusedDataFor: 5,
     }),
     getOrders: builder.query({
       query: () => ({
         url: ORDERS_URL,
       }),
+      providesTags: ['Order'],
       keepUnusedDataFor: 5,
     }),
     deliverOrder: builder.mutation({
@@ -46,11 +51,13 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
         url: `${ORDERS_URL}/${orderId}/deliver`,
         method: 'PUT',
       }),
+      invalidatesTags: ['Order'],
     }),
     getDashboardData: builder.query({
       query: () => ({
         url: `${ORDERS_URL}/dashboard`,
       }),
+      providesTags: ['Order'],
       keepUnusedDataFor: 5,
     }),
   }),

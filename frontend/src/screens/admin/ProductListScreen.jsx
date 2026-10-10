@@ -105,7 +105,6 @@ const ProductListScreen = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-border/50 bg-muted/20 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <th scope="col" className="px-6 py-4">ID</th>
                     <th scope="col" className="px-6 py-4">Name</th>
                     <th scope="col" className="px-6 py-4">Price</th>
                     <th scope="col" className="px-6 py-4">Category</th>
@@ -122,14 +121,11 @@ const ProductListScreen = () => {
                       transition={{ delay: idx * 0.03 }}
                       className="hover:bg-muted/10 transition-colors group"
                     >
-                      <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
-                        {product._id}
-                      </td>
                       <td className="px-6 py-4 font-medium text-foreground max-w-[240px] truncate group-hover:text-primary transition-colors">
                         {product.name}
                       </td>
                       <td className="px-6 py-4 font-semibold text-foreground">
-                        ${product.price?.toFixed(2)}
+                        ₹{product.price?.toFixed(2)}
                       </td>
                       <td className="px-6 py-4">
                         <Badge variant="secondary" className="gap-1 bg-secondary/40 text-secondary-foreground hover:bg-secondary/60">
@@ -169,7 +165,7 @@ const ProductListScreen = () => {
                   ))}
                   {products.length === 0 && (
                     <tr>
-                      <td colSpan="6" className="px-6 py-12 text-center text-muted-foreground">
+                      <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
                         No products found in the catalog.
                       </td>
                     </tr>

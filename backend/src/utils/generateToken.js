@@ -2,16 +2,23 @@ import jwt from 'jsonwebtoken';
 
 const generateToken = (res, userId) => {
   const secret = process.env.JWT_SECRET || 'fallback_secret_key';
+  const refreshSecret = process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret_key';
   
-  const token = jwt.sign({ userId }, secret, {
-    expiresIn: '30d',
+  const accessToken = jwt.sign({ userId }, secret, {
+    expiresIn: '15m',
   });
 
-  // Set JWT as HTTP-Only cookie (Optional, if using cookies, otherwise you can just return it in the body)
-  // For standard MERN apps often cookies are used, but returning it in JSON is fine too.
-  // We'll return it in the JSON body in the controller for simplicity and standard REST approach.
-  
-  return token;
+  const refreshToken = jwt.sign({ userId }, refreshSecret, {
+    expiresIn: '7d',
+  });
+
+  return { accessToken, refreshToken };
+};
+
+export const verifyRefreshToken = (token) => {
+  const refreshSecret = process.env.JWT_REFRESH_SECRET || 'fallback_refresh_secret_key';
+  return jwt.verify(token, refreshSecret);
 };
 
 export default generateToken;
+

@@ -1,14 +1,19 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useGetDashboardDataQuery } from '../../slices/ordersApiSlice';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
 import { Card, CardContent } from '../../components/ui/Card';
-import { DollarSign, ShoppingCart, Users, Eye, ArrowUpRight } from 'lucide-react';
+import { 
+  DollarSign, ShoppingCart, Users, Eye, ArrowUpRight, TrendingUp, TrendingDown,
+  LayoutDashboard, Package, MessageSquare
+} from 'lucide-react';
 
 const DashboardScreen = () => {
   const { data, isLoading, error } = useGetDashboardDataQuery();
+  const { pathname } = useLocation();
 
   if (isLoading) {
     return (
@@ -33,8 +38,8 @@ const DashboardScreen = () => {
   const realUsersCount = data?.totalUsers || 0;
 
   const formattedRevenue = realSales > 0 
-    ? `$${Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(realSales)}` 
-    : '$45,231';
+    ? `₹${Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(realSales)}` 
+    : '₹45,231';
   const formattedOrders = realOrdersCount > 0 
     ? Intl.NumberFormat('en-US').format(realOrdersCount) 
     : '1,234';
@@ -48,30 +53,38 @@ const DashboardScreen = () => {
       title: 'Total Revenue',
       value: formattedRevenue,
       icon: DollarSign,
-      trend: '▲ +12.5%',
-      trendColor: 'text-emerald-600 dark:text-emerald-500',
+      trend: '+12.5%',
+      isUp: true,
     },
     {
       title: 'Total Orders',
       value: formattedOrders,
       icon: ShoppingCart,
-      trend: '▲ +8.2%',
-      trendColor: 'text-emerald-600 dark:text-emerald-500',
+      trend: '+8.2%',
+      isUp: true,
     },
     {
       title: 'Active Customers',
       value: formattedUsers,
       icon: Users,
-      trend: '▲ +15.3%',
-      trendColor: 'text-emerald-600 dark:text-emerald-500',
+      trend: '+15.3%',
+      isUp: true,
     },
     {
       title: 'Page Views',
       value: '12,543',
       icon: Eye,
-      trend: '▼ -2.4%',
-      trendColor: 'text-rose-600 dark:text-rose-500',
+      trend: '-2.4%',
+      isUp: false,
     },
+  ];
+
+  const adminNavItems = [
+    { label: 'Dashboard', icon: LayoutDashboard, to: '/admin/dashboard' },
+    { label: 'Products', icon: Package, to: '/admin/productlist' },
+    { label: 'Orders', icon: ShoppingCart, to: '/admin/orderlist' },
+    { label: 'Users', icon: Users, to: '/admin/userlist' },
+    { label: 'Live Chat', icon: MessageSquare, to: '/admin/chat' },
   ];
 
   // Mock sales data exactly matching mockup chart wave
@@ -108,7 +121,7 @@ const DashboardScreen = () => {
 
   // Top Products matching mockup list
   const topProducts = [
-    { name: 'Nova Pro Wireless Headphones', category: 'Audio', price: 349, sold: 2847 },
+    { name: 'ShopSphere Pro Wireless Headphones', category: 'Audio', price: 349, sold: 2847 },
     { name: 'Ultra Smart Watch Series X', category: 'Wearables', price: 499, sold: 1923 },
     { name: 'Pro Laptop Stand Aluminum', category: 'Accessories', price: 129, sold: 856 },
     { name: 'Wireless Charging Pad Pro', category: 'Accessories', price: 79, sold: 1245 },
@@ -117,6 +130,29 @@ const DashboardScreen = () => {
 
   return (
     <div className="space-y-8">
+      {/* Admin Quick Nav Subbar */}
+      <div className="flex items-center justify-between border-b border-border/40 pb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Admin Dashboard</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Manage your store products, orders, customers, and analytics</p>
+        </div>
+        <div className="hidden sm:flex items-center gap-1.5 bg-secondary/50 p-1 rounded-2xl border border-border/50">
+          {adminNavItems.map((item) => {
+            const isActive = pathname === item.to;
+            return (
+              <Link key={item.to} to={item.to}>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}>
+                  <item.icon className="h-3.5 w-3.5" />
+                  {item.label}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Top Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
@@ -129,7 +165,12 @@ const DashboardScreen = () => {
               <div className="space-y-1">
                 <p className="text-3xl font-extrabold text-foreground tracking-tight">{stat.value}</p>
                 <div className="flex items-center gap-1 text-[11px] font-bold">
-                  <span className={stat.trendColor}>{stat.trend}</span>
+                  {stat.isUp ? (
+                    <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+                  ) : (
+                    <TrendingDown className="h-3.5 w-3.5 text-rose-500" />
+                  )}
+                  <span className={stat.isUp ? 'text-emerald-500' : 'text-rose-500'}>{stat.trend}</span>
                   <span className="text-muted-foreground/75 font-semibold">vs last month</span>
                 </div>
               </div>
@@ -253,7 +294,7 @@ const DashboardScreen = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-sm font-extrabold text-foreground">${order.price}</span>
+                    <span className="text-sm font-extrabold text-foreground">₹{order.price}</span>
                     <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider select-none ${
                       order.status === 'completed'
                         ? 'bg-blue-600 text-white'
@@ -294,7 +335,7 @@ const DashboardScreen = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-extrabold text-foreground">${product.price}</p>
+                    <p className="text-sm font-extrabold text-foreground">₹{product.price}</p>
                     <p className="text-[10px] text-muted-foreground/80 font-bold">{product.sold.toLocaleString()} sold</p>
                   </div>
                 </div>

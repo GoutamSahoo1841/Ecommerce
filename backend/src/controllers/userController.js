@@ -1,8 +1,9 @@
 import crypto from 'crypto';
 import asyncHandler from 'express-async-handler';
 import User from '../models/userModel.js';
-import generateToken from '../utils/generateToken.js';
+import generateToken, { verifyRefreshToken } from '../utils/generateToken.js';
 import sendEmail from '../utils/sendEmail.js';
+import { clearCachePattern } from '../config/redis.js';
 
 // @desc    Auth user & get token
 // @route   POST /api/users/login
@@ -13,7 +14,7 @@ export const authUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && !user.isAdmin && (await user.matchPassword(password))) {
-    const token = generateToken(res, user._id);
+    const { accessToken, refreshToken } = generateToken(res, user._id);
     
     res.json({
       _id: user._id,
@@ -22,9 +23,10 @@ export const authUser = asyncHandler(async (req, res) => {
       isAdmin: user.isAdmin,
       phone: user.phone || '',
       bio: user.bio || '',
-      token,
+      token: accessToken,
+      refreshToken,
     });
-  } else if (user && user.isAdmin) {
+  } else if (user && user.isAdmin && (await user.matchPassword(password))) {
     res.status(401);
     throw new Error('Admin account detected. Please use Admin Login.');
   } else {
@@ -42,7 +44,7 @@ export const authAdmin = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && user.isAdmin && (await user.matchPassword(password))) {
-    const token = generateToken(res, user._id);
+    const { accessToken, refreshToken } = generateToken(res, user._id);
     
     res.json({
       _id: user._id,
@@ -51,7 +53,8 @@ export const authAdmin = asyncHandler(async (req, res) => {
       isAdmin: user.isAdmin,
       phone: user.phone || '',
       bio: user.bio || '',
-      token,
+      token: accessToken,
+      refreshToken,
     });
   } else {
     res.status(401);
@@ -86,8 +89,11 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    const token = generateToken(res, user._id);
+    const { accessToken, refreshToken } = generateToken(res, user._id);
     
+    // Clear dashboard stats since a new user has registered
+    await clearCachePattern('dashboard:*');
+
     res.status(201).json({
       _id: user._id,
       name: user.name,
@@ -95,7 +101,8 @@ export const registerUser = asyncHandler(async (req, res) => {
       isAdmin: user.isAdmin,
       phone: user.phone || '',
       bio: user.bio || '',
-      token,
+      token: accessToken,
+      refreshToken,
     });
   } else {
     res.status(400);
@@ -133,7 +140,14 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
 
   if (user) {
     user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
+    if (req.body.phone && req.body.phone.trim()) {
+      const cleanPhone = req.body.phone.replace(/[\s\-()]/g, '');
+      const indianPhoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
+      if (!indianPhoneRegex.test(cleanPhone)) {
+        res.status(400);
+        throw new Error('Please enter a valid 10-digit Indian phone number (e.g. +91 98765 43210)');
+      }
+    }
     user.phone = req.body.phone !== undefined ? req.body.phone : user.phone;
     user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
     
@@ -147,6 +161,11 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
 
     const updatedUser = await user.save();
 
+    // Clear dashboard stats when profile is updated
+    await clearCachePattern('dashboard:*');
+
+    const { accessToken, refreshToken } = generateToken(res, updatedUser._id);
+
     res.json({
       _id: updatedUser._id,
       name: updatedUser.name,
@@ -155,7 +174,8 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
       phone: updatedUser.phone || '',
       bio: updatedUser.bio || '',
       addresses: updatedUser.addresses || [],
-      token: generateToken(res, updatedUser._id),
+      token: accessToken,
+      refreshToken,
     });
   } else {
     res.status(404);
@@ -183,6 +203,10 @@ export const deleteUser = asyncHandler(async (req, res) => {
       throw new Error('Cannot delete admin user');
     }
     await User.deleteOne({ _id: user._id });
+    
+    // Clear dashboard stats when a user is deleted
+    await clearCachePattern('dashboard:*');
+
     res.json({ message: 'User removed' });
   } else {
     res.status(404);
@@ -213,11 +237,22 @@ export const updateUser = asyncHandler(async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
+    if (req.body.phone && req.body.phone.trim()) {
+      const cleanPhone = req.body.phone.replace(/[\s\-()]/g, '');
+      const indianPhoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
+      if (!indianPhoneRegex.test(cleanPhone)) {
+        res.status(400);
+        throw new Error('Please enter a valid 10-digit Indian phone number (e.g. +91 98765 43210)');
+      }
+    }
     user.phone = req.body.phone !== undefined ? req.body.phone : user.phone;
     user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
     user.isAdmin = Boolean(req.body.isAdmin);
 
     const updatedUser = await user.save();
+
+    // Clear dashboard stats when user details are updated by admin
+    await clearCachePattern('dashboard:*');
 
     res.json({
       _id: updatedUser._id,
@@ -251,7 +286,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   // Create reset url
   // Use frontend origin (e.g. localhost:5173 or deployed domain)
-  const origin = req.get('host').replace('5000', '5173');
+  const origin = req.headers.origin || req.get('host').replace(/:\d+$/, ':5173');
   const protocol = origin.includes('localhost') ? 'http' : req.protocol;
   const resetUrl = `${protocol}://${origin}/resetpassword/${resetToken}`;
 
@@ -309,7 +344,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
   await user.save();
 
   // Also send a new JWT token so user is logged in
-  const token = generateToken(res, user._id);
+  const { accessToken, refreshToken } = generateToken(res, user._id);
 
   res.status(200).json({
     success: true,
@@ -317,7 +352,40 @@ export const resetPassword = asyncHandler(async (req, res) => {
     name: user.name,
     email: user.email,
     isAdmin: user.isAdmin,
-    token,
+    token: accessToken,
+    refreshToken,
   });
+});
+
+// @desc    Refresh access token
+// @route   POST /api/users/refresh
+// @access  Public
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    res.status(401);
+    throw new Error('Refresh token is required');
+  }
+
+  try {
+    const decoded = verifyRefreshToken(refreshToken);
+
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      res.status(401);
+      throw new Error('User not found');
+    }
+
+    const { accessToken, refreshToken: newRefreshToken } = generateToken(res, user._id);
+
+    res.json({
+      token: accessToken,
+      refreshToken: newRefreshToken,
+    });
+  } catch (error) {
+    res.status(401);
+    throw new Error('Invalid refresh token');
+  }
 });
 

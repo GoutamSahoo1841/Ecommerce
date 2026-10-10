@@ -49,7 +49,7 @@ const CategoriesScreen = () => {
 
   return (
     <div className="space-y-8">
-      <Meta title="Shop by Category - NOVA" description="Browse premium products across various categories." />
+      <Meta title="Shop by Category - ShopSphere" description="Browse premium products across various categories." />
       
       {/* Title Header */}
       <div className="space-y-2 text-left">

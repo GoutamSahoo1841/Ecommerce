@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 import { MessageSquare, Send, User } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 
-const ENDPOINT = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '/';
+const ENDPOINT = '/';
 
 const AdminChatScreen = () => {
   const { userInfo } = useSelector((state) => state.auth);

@@ -59,7 +59,7 @@ const RegisterScreen = () => {
         </button>
 
         <div className="text-center mb-8 mt-6">
-          <span className="text-xl font-bold tracking-wider text-foreground">NOVA</span>
+          <span className="text-xl font-bold tracking-wider text-foreground">ShopSphere</span>
           <h1 className="text-2xl font-extrabold text-foreground mt-4">Create your account</h1>
           <p className="text-sm text-muted-foreground mt-1">Start your shopping journey today</p>
         </div>

@@ -15,7 +15,16 @@ const PlaceOrderScreen = () => {
   const dispatch = useDispatch();
 
   const cart = useSelector((state) => state.cart);
-  const orderItems = cart.isBuyNow && cart.buyNowItem ? [cart.buyNowItem] : cart.cartItems;
+  const rawItems = cart.isBuyNow && cart.buyNowItem ? [cart.buyNowItem] : cart.cartItems;
+  const orderItems = rawItems.map((item) => ({
+    name: item.name,
+    qty: Number(item.qty),
+    image: item.image,
+    price: Number(item.price),
+    product: item.product || item._id,
+    selectedColor: item.selectedColor,
+    selectedSize: item.selectedSize,
+  }));
 
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
 
@@ -128,7 +137,7 @@ const PlaceOrderScreen = () => {
                         )}
                       </div>
                       <div className="text-sm font-bold text-foreground whitespace-nowrap">
-                        {item.qty} x ${item.price} = ${(item.qty * item.price).toFixed(2)}
+                        {item.qty} x ₹{item.price} = ₹{(item.qty * item.price).toFixed(2)}
                       </div>
                     </div>
                   ))}
@@ -147,7 +156,7 @@ const PlaceOrderScreen = () => {
               <div className="space-y-4 text-sm text-muted-foreground">
                 <div className="flex justify-between">
                   <span>Items</span>
-                  <span className="font-semibold text-foreground">${cart.itemsPrice}</span>
+                  <span className="font-semibold text-foreground">₹{cart.itemsPrice}</span>
                 </div>
                 {cart.discountPrice > 0 && (
                   <div className="flex justify-between text-emerald-500 font-medium">
@@ -155,23 +164,23 @@ const PlaceOrderScreen = () => {
                       <Tag className="h-3.5 w-3.5" />
                       Discount ({cart.couponCode})
                     </span>
-                    <span>-${cart.discountPrice}</span>
+                    <span>-₹{cart.discountPrice}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span className="font-semibold text-foreground">${cart.shippingPrice}</span>
+                  <span className="font-semibold text-foreground">₹{cart.shippingPrice}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Tax</span>
-                  <span className="font-semibold text-foreground">${cart.taxPrice}</span>
+                  <span className="font-semibold text-foreground">₹{cart.taxPrice}</span>
                 </div>
                 
                 <div className="h-px bg-border/50" />
                 
                 <div className="flex justify-between items-center text-base font-bold text-foreground">
                   <span>Total</span>
-                  <span className="text-xl text-primary">${cart.totalPrice}</span>
+                  <span className="text-xl text-primary">₹{cart.totalPrice}</span>
                 </div>
               </div>
 

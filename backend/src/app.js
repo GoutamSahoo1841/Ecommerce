@@ -11,36 +11,46 @@ import orderRoutes from './routes/orderRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import monitoringMiddleware from './middleware/monitoring.js';
 
 const app = express();
 
-// Express 5 compatibility: make req.query writable
+// Express 5 compatibility: make req.query writable.
+//We create a copy of the original req.query and then replace req.query with that copy. This new req.query is made writable, so subsequent middleware can modify or sanitize it.
 app.use((req, res, next) => {
   if (req.query) {
     Object.defineProperty(req, 'query', {
       value: { ...req.query },
-      writable: true,
-      configurable: true,
-      enumerable: true,
+      writable: true, //This means the req.query property can be changed/reassigned.
+      configurable: true,  //This means the property can later be modified or deleted.
+      enumerable: true,  //This means the property behaves normally when JavaScript enumerates the object's properties.
     });
   }
   next();
 });
 
-// Security: Set security HTTP headers
-app.use(helmet());
+// Security: It adds security-related HTTP headers to the server's response, which instruct the browser to handle the response more securely.
+app.use(helmet()); 
 
-// Cross Origin Resource Sharing
+// Cross Origin Resource Sharing. It controls which frontend origins are allowed to communicate with your backend from a browser.
 app.use(cors());
 
-// Body parser
+// Body parser. Converts incoming JSON request bodies into JavaScript objects.
 app.use(express.json());
 
-// Security: Sanitize data to prevent NoSQL Operator Injection
+// Security: Sanitize data to prevent NoSQL Operator Injection. For example, malicious input might try to use MongoDB operators like $gt or $ne to manipulate queries. This middleware removes any keys that start with '$' or contain '.' from the request body, query, and params.
 app.use(mongoSanitize());
 
-// Security: Prevent HTTP Param Pollution
+// Security: Prevent HTTP Parameter Pollution. It handles duplicate query parameters.
 app.use(hpp());
+
+// API Performance Monitoring: Track response telemetry for API Monitoring System
+app.use(monitoringMiddleware({
+  serviceName: process.env.SERVICE_NAME || 'E-commerce',
+  apiKey: process.env.MONITORING_API_KEY,
+  endpoint: process.env.MONITORING_ENDPOINT || 'http://localhost:5000/api/hit',
+  enableLogging: process.env.NODE_ENV !== 'production'
+}));
 
 // Security: Rate limiting
 const limiter = rateLimit({
