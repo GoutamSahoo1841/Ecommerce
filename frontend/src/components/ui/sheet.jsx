@@ -9,12 +9,46 @@ function Sheet({ ...props }) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
 }
 
-function SheetTrigger({ ...props }) {
-  return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />
+function SheetTrigger({ asChild, children, render, ...props }) {
+  if (asChild && React.isValidElement(children)) {
+    return (
+      <SheetPrimitive.Trigger
+        data-slot="sheet-trigger"
+        render={children}
+        {...props}
+      />
+    )
+  }
+  return (
+    <SheetPrimitive.Trigger
+      data-slot="sheet-trigger"
+      render={render}
+      {...props}
+    >
+      {children}
+    </SheetPrimitive.Trigger>
+  )
 }
 
-function SheetClose({ ...props }) {
-  return <SheetPrimitive.Close data-slot="sheet-close" {...props} />
+function SheetClose({ asChild, children, render, ...props }) {
+  if (asChild && React.isValidElement(children)) {
+    return (
+      <SheetPrimitive.Close
+        data-slot="sheet-close"
+        render={children}
+        {...props}
+      />
+    )
+  }
+  return (
+    <SheetPrimitive.Close
+      data-slot="sheet-close"
+      render={render}
+      {...props}
+    >
+      {children}
+    </SheetPrimitive.Close>
+  )
 }
 
 function SheetPortal({ ...props }) {

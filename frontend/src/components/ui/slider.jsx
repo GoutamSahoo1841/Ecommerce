@@ -9,6 +9,8 @@ function Slider({
   value,
   min = 0,
   max = 100,
+  onValueCommit,
+  onValueCommitted,
   ...props
 }) {
   const _values = Array.isArray(value)
@@ -16,6 +18,8 @@ function Slider({
     : Array.isArray(defaultValue)
       ? defaultValue
       : [min, max]
+
+  const handleCommit = onValueCommitted || onValueCommit
 
   return (
     <SliderPrimitive.Root
@@ -26,6 +30,7 @@ function Slider({
       min={min}
       max={max}
       thumbAlignment="edge"
+      {...(handleCommit ? { onValueCommitted: handleCommit } : {})}
       {...props}
     >
       <SliderPrimitive.Control className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col">

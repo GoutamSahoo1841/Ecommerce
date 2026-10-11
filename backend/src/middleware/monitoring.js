@@ -4,21 +4,32 @@ import axios from 'axios';
  * Reusable across different client applications
  */
 const monitoringMiddleware = (options = {}) => {
-    const {
-        apiKey = process.env.MONITORING_API_KEY,
-        endpoint = process.env.MONITORING_ENDPOINT || 'http://localhost:5000/api/hit',
-        serviceName = process.env.SERVICE_NAME || 'my-service',
-        enableLogging = process.env.NODE_ENV !== 'production',
-        timeout = 3000,
-        enabled = process.env.MONITORING_ENABLED !== 'false'
-    } = options;
+    const apiKey = options.apiKey || process.env.MONITORING_API_KEY;
+    const endpoint = options.endpoint || process.env.MONITORING_ENDPOINT || 'http://localhost:5000/api/hit';
+    const serviceName = options.serviceName || process.env.SERVICE_NAME || 'my-service';
+    const enableLogging = options.enableLogging !== undefined
+        ? options.enableLogging
+        : (process.env.MONITORING_ENABLE_LOGGING === 'true' || process.env.NODE_ENV !== 'production');
+    const timeout = options.timeout || 3000;
+    const enabled = options.enabled !== undefined
+        ? options.enabled
+        : (process.env.MONITORING_ENABLED !== 'false');
 
     // If monitoring is disabled or no API key, return pass-through middleware
-    if (!enabled || !apiKey) {
-        if (enableLogging && !apiKey) {
-            console.warn('Monitoring middleware: API key not configured');
+    if (!enabled) {
+        if (enableLogging) {
+            console.log('[Monitoring] Disabled via configuration');
         }
         return (req, res, next) => next();
+    }
+
+    if (!apiKey) {
+        console.warn('[Monitoring] Warning: MONITORING_API_KEY is not set in environment variables. Monitoring will not send data.');
+        return (req, res, next) => next();
+    }
+
+    if (process.env.NODE_ENV === 'production' && endpoint.includes('localhost')) {
+        console.warn(`[Monitoring] Warning: MONITORING_ENDPOINT is pointing to "${endpoint}" in production. A deployed cloud server cannot reach localhost! Set a public URL in your deployment environment variables.`);
     }
 
     return (req, res, next) => {
