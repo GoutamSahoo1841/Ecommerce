@@ -16,6 +16,9 @@ import monitoringMiddleware from './middleware/monitoring.js';
 
 const app = express();
 
+// Trust reverse proxy (Render, Vercel, Cloudflare) for correct req.ip and secure headers
+app.set('trust proxy', 1);
+
 // Express 5 compatibility: make req.query writable.
 //We create a copy of the original req.query and then replace req.query with that copy. This new req.query is made writable, so subsequent middleware can modify or sanitize it.
 app.use((req, res, next) => {
@@ -47,10 +50,10 @@ app.use(hpp());
 
 // API Performance Monitoring: Track response telemetry for API Monitoring System
 app.use(monitoringMiddleware({
-  serviceName: process.env.SERVICE_NAME || 'E-commerce',
-  apiKey: process.env.MONITORING_API_KEY,
-  endpoint: process.env.MONITORING_ENDPOINT || 'http://localhost:5000/api/hit',
-  enableLogging: process.env.NODE_ENV !== 'production'
+  serviceName: process.env.SERVICE_NAME || 'ShopSphere',
+  apiKey: process.env.MONITORING_API_KEY || 'apim_cff3ff1a650076b8546a0b10572ab0d4dca574de',
+  endpoint: process.env.MONITORING_ENDPOINT || 'https://api-monitoring-api-8p7a.onrender.com/api/hit',
+  enableLogging: process.env.MONITORING_ENABLE_LOGGING === 'true' || process.env.NODE_ENV !== 'production'
 }));
 
 // Security: Rate limiting
